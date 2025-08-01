@@ -602,7 +602,7 @@ function Card:set_ability(...)
     local exist_element = self.ability and self.ability.hsr_extra_effects or {}
     local ret = hookTo(self,...)
 
-    if self.config.center.set == "Joker" then
+    if self.config.center.set == "Joker" and self.area and G.STAGE == G.STAGES.RUN then
         if #exist_element < (G.GAME.hsr_maximum_extra_effects or 2) then
             for _ = 1, (G.GAME.hsr_maximum_extra_effects or 2) - #exist_element do
                 local odd = pseudorandom("hsr_feeling_lucky_today") <= 1/(G.GAME.hsr_extra_chance_rate or 5)
