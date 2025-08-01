@@ -1,0 +1,13 @@
+{
+    "id": "stacked",
+    "name": "Stacked",
+    "author": ["BepisFever"],
+    "description": "Adding extra effects to Jokers.",
+    "prefix": "stck",
+    "main_file": "main.lua",
+    "badge_colour": "FC3A3A",
+    "badge_text_colour": "FFFFFF",
+    "display_name": "Stacked",
+    "version": "1.0.0",
+    "priority": -1000000000000
+}
