@@ -57,7 +57,7 @@ function Stacked.isxchips(str)
     return false
 end
 
-function ischips(str)
+function Stacked.ischips(str)
     if str and type(str) == "string" then
         if string.find(string.lower(str), "chip") and not Stacked.isxchips(str) then
             return true
@@ -69,7 +69,7 @@ end
 ExtraEffects = {
     score_suit_mult = {
         key = "score_suit_mult", 
-        ability = {mult = 5, suit = "Spades"},
+        ability = {mult = 5, min_possible = 5, max_possible = 20, suit = "Spades"},
         description = {
             text = {
                 "{C:inactive}[Attack]{} {C:inactive}({}{V:2}#3#%{}{C:inactive}){}",
@@ -82,19 +82,11 @@ ExtraEffects = {
         end,
         randomize_values = function(card, ability_table)
             ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssm_randomize"))
-            local first_digit = pseudorandom(card.config.center.key.."ssm_randomize_mult1", 5, 19)
-            local second_digit = pseudorandom(card.config.center.key.."ssm_randomize_mult2", 0, 10)
-            local max_possible = 20
-            local min_possible = 5
-
-            if second_digit == 10 then 
-                first_digit = first_digit + 1 
-            else
-                first_digit = first_digit + second_digit/10
-            end
-
-            ability_table.mult = first_digit
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100
+            ability_table.perfect = pseudorandom("ssm_potency_roll", 0, 10) * 10
+            ability_table.mult = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.mult = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         calculate = function(card, context, ability_table) 
             if context.individual and context.cardarea == G.play then
@@ -108,7 +100,7 @@ ExtraEffects = {
     },
     score_suit_chips = {
         key = "score_suit_chips", 
-        ability = {chips = 5, suit = "Spades"},
+        ability = {chips = 5, min_possible = 25, max_possible = 100, suit = "Spades"},
         description = {
             text = {
                 "{C:inactive}[Attack]{} {C:inactive}({}{V:2}#3#%{}{C:inactive}){}",
@@ -121,19 +113,11 @@ ExtraEffects = {
         end,
         randomize_values = function(card, ability_table)
             ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssc_randomize"))
-            local first_digit = pseudorandom(card.config.center.key.."ssc_randomize_chips1", 25, 99)
-            local second_digit = pseudorandom(card.config.center.key.."ssc_randomize_chips2", 0, 10)
-            local max_possible = 100
-            local min_possible = 25
-
-            if second_digit == 10 then 
-                first_digit = first_digit + 1 
-            else
-                first_digit = first_digit + second_digit/10
-            end
-
-            ability_table.chips = first_digit
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100
+            ability_table.perfect = pseudorandom("ssc_potency_roll", 0, 10) * 10
+            ability_table.chips = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.chips = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         calculate = function(card, context, ability_table) 
             if context.individual and context.cardarea == G.play then
@@ -147,7 +131,7 @@ ExtraEffects = {
     },
     score_suit_xmult = {
         key = "score_suit_xmult", 
-        ability = {xmult = 1, suit = "Spades"},
+        ability = {xmult = 1, min_possible = 1.1, max_possible = 2, suit = "Spades"},
         description = {
             text = {
                 "{C:inactive}[Attack]{} {C:inactive}({}{V:2}#3#%{}{C:inactive}){}",
@@ -159,20 +143,12 @@ ExtraEffects = {
             return {vars = {ability_table.xmult, ability_table.suit, Stacked.round(ability_table.perfect, 1), colours = {G.C.SUITS[ability_table.suit], {1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssxm_randomize"))
-            local first_digit = 1
-            local second_digit = pseudorandom(card.config.center.key.."ssxm_randomize_mult1", 0, 10)
-            local max_possible = 2
-            local min_possible = 1.1
-
-            if second_digit == 10 then 
-                first_digit = first_digit + 1 
-            else
-                first_digit = first_digit + second_digit/10
-            end
-
-            ability_table.xmult = first_digit
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100
+            ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssx_randomize"))
+            ability_table.perfect = pseudorandom("ssx_potency_roll", 0, 10) * 10
+            ability_table.xmult = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.xmult = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         calculate = function(card, context, ability_table) 
             if context.individual and context.cardarea == G.play then
@@ -186,7 +162,7 @@ ExtraEffects = {
     },
     joker_buff1 = {
         key = "joker_buff1", 
-        ability = {buff = 1},
+        ability = {buff = 1, min_possible = 1, max_possible = 1.5},
         description = {
             text = {
                 "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
@@ -198,20 +174,11 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            local first_digit = pseudorandom(card.config.center.key.."jb_randomize_buff1", 0, 4)
-            local second_digit = pseudorandom(card.config.center.key.."jb_randomize_buff2", 0, 10)
-            local max_possible = 1.5
-            local min_possible = 1
-
-            if second_digit == 10 then 
-                first_digit = first_digit + 1 
-            else
-                first_digit = first_digit + second_digit/10
-            end
-            first_digit = 1 + (first_digit)/10
-
-            ability_table.buff = first_digit
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100 
+            ability_table.perfect = pseudorandom("jb1_potency_roll", 0, 5) * 20
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         calculate = function(card, context, ability_table) 
             if context.joker_buff then
@@ -223,7 +190,7 @@ ExtraEffects = {
     },
     joker_buff2 = {
         key = "joker_buff2", 
-        ability = {buff = 1},
+        ability = {buff = 1, min_possible = 1, max_possible = 2},
         description = {
             text = {
                 "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
@@ -234,12 +201,19 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            local first_digit = pseudorandom(card.config.center.key.."jb2_randomize_buff", 1, 3)
-            local max_possible = 3
-            local min_possible = 1
+            ability_table.perfect = pseudorandom("jb2_potency_roll", 0, 1) * 100
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            local new = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+            local old = ability_table.buff
+            local diff = new - old
 
-            ability_table.buff = first_digit
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100
+            ability_table.buff = new
+            if diff ~= 0 then
+                G.GAME.round_resets.hands = G.GAME.round_resets.hands + diff
+                ease_hands_played(diff)
+            end
         end,
         on_apply = function(card, ability_table, repeated)
             G.GAME.round_resets.hands = G.GAME.round_resets.hands + ability_table.buff
@@ -252,7 +226,7 @@ ExtraEffects = {
     },
     joker_buff3 = {
         key = "joker_buff3", 
-        ability = {buff = 1},
+        ability = {buff = 1, min_possible = 1, max_possible = 2},
         description = {
             text = {
                 "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
@@ -263,12 +237,19 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            local first_digit = pseudorandom(card.config.center.key.."jb3_randomize_buff", 1, 3)
-            local max_possible = 3
-            local min_possible = 1
+            ability_table.perfect = pseudorandom("jb3_potency_roll", 0, 1) * 100
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            local new = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+            local old = ability_table.buff
+            local diff = new - old
 
-            ability_table.buff = first_digit
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100    
+            ability_table.buff = new
+            if diff ~= 0 then
+                G.GAME.round_resets.discards = G.GAME.round_resets.discards + diff
+                ease_discard(diff)
+            end
         end,
         on_apply = function(card, ability_table, repeated)
             G.GAME.round_resets.discards = G.GAME.round_resets.discards + ability_table.buff
@@ -281,7 +262,7 @@ ExtraEffects = {
     },
     joker_buff4 = {
         key = "joker_buff4", 
-        ability = {buff = 1, remaining = 1},
+        ability = {buff = 1, min_possible = 1, max_possible = 2, remaining = 1},
         description = {
             text = {
                 "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
@@ -294,16 +275,21 @@ ExtraEffects = {
             return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            local first_digit = pseudorandom(card.config.center.key.."jb4_randomize_buff", 1, 2)
-            local max_possible = 2
-            local min_possible = 1
-
-            ability_table.buff = first_digit
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100
+            ability_table.perfect = pseudorandom("jb4_potency_roll", 0, 1) * 100
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
             ability_table.remaining = ability_table.buff
         end,
-        on_apply = function(card, ability_table, repeated)
-            ability_table.remaining = ability_table.buff
+        update_values = function(card, ability_table)
+            local new = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+            local old = ability_table.buff
+            local diff = new - old
+            ability_table.buff = new
+            ability_table.remaining = ability_table.remaining + diff
+        end,
+        on_apply = function(card, ability_table, repeated, ability_index)
+            if ability_table.remaining <= 0 then
+                table.remove(card.ability.hsr_extra_effects,ability_index)
+            end
         end,
         prevent_destruction = function(card, ability_table, ability_index)
             if ability_table.remaining > 0 then
@@ -320,7 +306,7 @@ ExtraEffects = {
     },
     joker_buff5 = {
         key = "joker_buff5", 
-        ability = {buff = 1},
+        ability = {buff = 1, min_possible = 1, max_possible = 1.5},
         description = {
             text = {
                 "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
@@ -335,12 +321,11 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            local first_digit = pseudorandom(card.config.center.key.."jb5_randomize_buff", 10, 15)/10
-            local max_possible = 1.5
-            local min_possible = 1
-
-            ability_table.buff = first_digit
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100
+            ability_table.perfect = pseudorandom("jb5_potency_roll", 0, 5) * 100
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         modify_scale = function(card, ability_table)
             return{
@@ -350,7 +335,7 @@ ExtraEffects = {
     },
     joker_buff6 = {
         key = "joker_buff6", 
-        ability = {buff = 1},
+        ability = {buff = 1, min_possible = 5, max_possible = 20},
         description = {
             text = {
                 "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
@@ -362,12 +347,22 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            local first_digit = pseudorandom(card.config.center.key.."jb6_randomize_buff", 5, 20)
-            local max_possible = 20
-            local min_possible = 5
+            ability_table.perfect = pseudorandom("jb6_potency_roll", 0, 10) * 10
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            local new = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+            local old = ability_table.buff
+            local diff = new - old
 
-            ability_table.buff = first_digit
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100
+            ability_table.buff = new
+
+            if diff ~= 0 then
+                if G.GAME.blind and G.GAME.blind.in_blind then
+                    G.GAME.blind.chips = G.GAME.blind.chips * (1 - (diff/100))
+                    G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
+                end
+            end
         end,
         on_apply = function(card, ability_table, repeated)
             if G.GAME.blind and G.GAME.blind.in_blind then
@@ -384,7 +379,7 @@ ExtraEffects = {
     },
     joker_buff7 = {
         key = "joker_buff7", 
-        ability = {buff = 1},
+        ability = {buff = 1, min_possible = 5, max_possible = 10},
         description = {
             text = {
                 "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
@@ -396,13 +391,16 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            local first_digit = pseudorandom(card.config.center.key.."jb6_randomize_buff", 5, 10)
-            local max_possible = 10
-            local min_possible = 5
-
-            ability_table.max_buff = first_digit
+            ability_table.perfect = pseudorandom("jb7_potency_roll", 0, 5) * 20
+            ability_table.max_buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
             ability_table.buff = ability_table.max_buff
-            ability_table.perfect = (math.max((first_digit-min_possible),0)/(max_possible-min_possible)) * 100
+        end,
+        update_values = function(card, ability_table)
+            local new = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+            local old = ability_table.max_buff
+            local diff = new - old
+            ability_table.max_buff = new
+            ability_table.buff = ability_table.buff + diff
         end,
         on_apply = function(card, ability_table, repeated)
             ability_table.buff = ability_table.max_buff
@@ -421,7 +419,182 @@ ExtraEffects = {
             end
         end,
     },
+    joker_buff8 = {
+        key = "joker_buff8", 
+        ability = {buff = 1, min_possible = 1, max_possible = 2, remaining = 1},
+        description = {
+            text = {
+                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
+                "When this Joker would get {C:red}destroyed{},",
+                "{C:attention}reset{} its {C:attention}values{} instead",
+                "{C:inactive}(Uses left: #2#){}",
+            },
+        },
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = pseudorandom("jb8_potency_roll", 0, 1) * 100
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+            ability_table.remaining = ability_table.buff
+        end,
+        update_values = function(card, ability_table)
+            local new = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+            local old = ability_table.buff
+            local diff = new - old
+            ability_table.buff = new
+            ability_table.remaining = ability_table.remaining + diff
+        end,
+        on_apply = function(card, ability_table, repeated, ability_index)
+            if ability_table.remaining <= 0 then
+                table.remove(card.ability.hsr_extra_effects,ability_index)
+            end
+        end,
+        prevent_destruction = function(card, ability_table, ability_index)
+            if ability_table.remaining > 0 then
+                local key = card.config.center.key
+                if G.P_CENTERS[key] and G.P_CENTERS[key].config and type(G.P_CENTERS[key].config) == "table" then
+                    local function replace_value(t1, t2)
+                        for i,v in pairs(t1) do
+                            t2[i] = t2[i] or {}
+                            if type(v) == "table" then 
+                                replace_value(t1[i], t2[i])
+                            else
+                                t2[i] = t1[i]
+                            end
+                        end
+                    end
+                    replace_value(G.P_CENTERS[key].config, card.ability)
+                    card:set_cost()
+                end
+                ability_table.remaining = ability_table.remaining - 1
+                if ability_table.remaining <= 0 then
+                    table.remove(card.ability.hsr_extra_effects, ability_index)
+                end
+                SMODS.calculate_effect({message = "Blocked!"}, card)
+                return{
+                    block = true
+                }
+            end
+        end,
+    },
+    joker_buff9 = {
+        key = "joker_buff9", 
+        ability = {buff = "Tarot"},
+        description = {
+            text = {
+                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
+                "When this Joker is {C:attention}destroyed{},",
+                "create a {C:attention}#1#{} card",
+                "{C:inactive}(Must have room)",
+            },
+        },
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = pseudorandom("jb9_potency_roll", 0, 1) * 100
+            ability_table.buff = (ability_table.perfect >= 50) and "Spectral" or "Tarot"
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.perfect >= 50) and "Spectral" or "Tarot"
+        end,
+        on_destroy = function(card, ability_table)
+            if G.consumeables and (#G.consumeables.cards < G.consumeables.config.card_limit) then
+                SMODS.add_card({set = ability_table.buff})
+            end
+        end,
+    },
+    joker_buff10 = {
+        key = "joker_buff10", 
+        ability = {mult = 0, buff = 1, min_possible = 50, max_possible = 200},
+        description = {
+            text = {
+                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
+                "{C:mult}+#1#{} Mult",
+                "Convert {C:chips}#2#%{} Chips of {C:attention}scored{}",
+                "cards to {C:mult}+Mult{}, decreases by {C:attention}half{}",
+                "at end of round",
+            },
+        },
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.mult, ability_table.buff * 100, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = pseudorandom("jb10_potency_roll", 0, 100) * 1
+            ability_table.buff = ((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)))/100
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = ((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)))/100
+        end,
+        calculate = function(card, context, ability_table)
+            if context.individual and context.cardarea == G.play then
+                ability_table.mult = ability_table.mult + (context.other_card:get_chip_bonus() * (1 - ability_table.buff))
+            end
+            if context.joker_main and ability_table.mult > 0 then
+                return{
+                    mult = ability_table.mult
+                }
+            end
+            if context.end_of_round and context.main_eval and ability_table.mult > 0 then
+                ability_table.mult = math.floor(ability_table.mult/2)
+            end
+        end,
+    },
+    joker_buff11 = {
+        key = "joker_buff11", 
+        ability = {buff = 1, min_possible = 1, max_possible = 5},
+        description = {
+            text = {
+                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
+                "Increase a {C:attention}random{} Effect's {C:attention}Potency{}",
+                "of this Joker by {C:attention}#1#%{} {C:inactive}(except itself){}",
+                "at end of round",
+            },
+        },
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = pseudorandom("jb8_potency_roll", 0, 5) * 20
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.end_of_round and context.main_eval and #card.ability.hsr_extra_effects >= 2 then
+                local pool = {}
+                for i,v in ipairs(card.ability.hsr_extra_effects) do
+                    if i ~= ability_index and v.ability and v.ability.perfect then pool[#pool+1] = v end
+                end
+                local random = pseudorandom_element(pool, pseudoseed("jb11_effect"))
+                if random and random.ability and random.ability.perfect and random.ability.perfect < 100 then
+                    random.ability.perfect = math.min(random.ability.perfect + ability_table.buff, 100)
+                end
+            end
+        end,
+    },
 }
+
+local function is_food_joker(joker) --thanks dilly
+    if joker.ability.isFood then
+        return joker.ability.isFood
+    end
+    local food_jokers = {
+        ['j_gros_michel'] = true,
+        ['j_cavendish'] = true,
+        ['j_turtle_bean'] = true,
+        ['j_ice_cream'] = true,
+        ['j_popcorn'] = true,
+        ['j_ramen'] = true,
+        ['j_seltzer'] = true,
+        ['j_diet_cola'] = true,
+        ['j_egg'] = true,
+    }
+
+    return food_jokers[joker.config.center.key]
+end
 
 function table.clone(t) --Clones a table.
     local ret = {}
@@ -445,7 +618,10 @@ function apply_extra_effect(card, effect, bypass_cap)
             card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability[i] = v
         end
         if new_effect.randomize_values then
-            new_effect.randomize_values(card, card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability)
+            new_effect.randomize_values(card, card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability, #card.ability.hsr_extra_effects)
+        end
+        if new_effect.update_values then
+            new_effect.update_values(card, card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability, #card.ability.hsr_extra_effects)
         end
         if card.area == G.jokers then
             if new_effect.on_apply and type(new_effect.on_apply) == "function" then
@@ -485,6 +661,9 @@ function Game:update(...)
                     end
                     modify(card.ability, scale_mod, card.hsr_old_ability)
                 end
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].update_values and type(ExtraEffects[v.key].update_values) == "function" then
+                    ExtraEffects[v.key].update_values(card, v.ability, i)
+                end
             end
             local clone = table.clone(card.ability)
             if clone.hsr_old_ability then clone.hsr_old_ability = nil end
@@ -513,20 +692,70 @@ end
 
 local hookTo = Card.remove
 function Card:remove()
-    if self.ability and self.ability.hsr_extra_effects and self.area == G.jokers then
-        for i,v in ipairs(self.ability.hsr_extra_effects) do
-            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].prevent_destruction and type(ExtraEffects[v.key].prevent_destruction) == "function" then
-                local pd = ExtraEffects[v.key].prevent_destruction(self, v.ability, i)
-                if pd and pd.block then
-                    return
+    if is_food_joker(self) or (self.config.center.pools and self.config.center.pools.Food) then 
+        if self.ability and self.ability.hsr_extra_effects then
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_destroy and type(ExtraEffects[v.key].on_destroy) == "function" and not v.ability.on_destroy_flagged then
+                    self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = true
+                    local on_destroy = ExtraEffects[v.key].on_destroy(self, v.ability, i)
+                end
+            end
+
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].prevent_destruction and type(ExtraEffects[v.key].prevent_destruction) == "function" then
+                    local pd = ExtraEffects[v.key].prevent_destruction(self, v.ability, i)
+                    if pd and pd.block then
+                        local new_card = copy_card(self)
+                        for i,v in ipairs(new_card.ability.hsr_extra_effects) do
+                            if v.ability then
+                                new_card.ability.hsr_extra_effects[i].ability.on_destroy_flagged = false
+                                new_card.ability.hsr_extra_effects[i].ability.on_apply_flagged = false
+                                new_card.ability.hsr_extra_effects[i].ability.on_remove_flagged = false
+                            end
+                        end
+                        if new_card.add_to_deck then new_card:add_to_deck() end
+                        G.jokers:emplace(new_card)
+                    end
+                end
+            end
+
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_remove and type(ExtraEffects[v.key].on_remove) == "function" and not v.ability.on_remove_flagged then
+                    v.ability.on_remove_flagged = true
+                    local on_remove = ExtraEffects[v.key].on_remove(self, v.ability, true, i)
                 end
             end
         end
+        local ret = hookTo(self)
+        return ret
+    else
+        if self.ability and self.ability.hsr_extra_effects and self.area == G.jokers then
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_destroy and type(ExtraEffects[v.key].on_destroy) == "function" and not v.ability.on_destroy_flagged then
+                    self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = true
+                    local on_destroy = ExtraEffects[v.key].on_destroy(self, v.ability, i)
+                end
+            end
 
-        for i,v in ipairs(self.ability.hsr_extra_effects) do
-            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_remove and type(ExtraEffects[v.key].on_remove) == "function" and not v.ability.on_remove_flagged then
-                v.ability.on_remove_flagged = true
-                local on_remove = ExtraEffects[v.key].on_remove(self, v.ability, true, i)
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].prevent_destruction and type(ExtraEffects[v.key].prevent_destruction) == "function" then
+                    local pd = ExtraEffects[v.key].prevent_destruction(self, v.ability, i)
+                    if pd and pd.block then
+                        for i,v in ipairs(self.ability.hsr_extra_effects) do
+                            if v.ability and v.ability.on_destroy_flagged then
+                                self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = false
+                            end
+                        end
+                        return
+                    end
+                end
+            end
+
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_remove and type(ExtraEffects[v.key].on_remove) == "function" and not v.ability.on_remove_flagged then
+                    v.ability.on_remove_flagged = true
+                    local on_remove = ExtraEffects[v.key].on_remove(self, v.ability, true, i)
+                end
             end
         end
     end
@@ -538,9 +767,21 @@ local hookTo = Card.start_dissolve
 function Card:start_dissolve(...)
     if self.ability and self.ability.hsr_extra_effects and self.area == G.jokers then
         for i,v in ipairs(self.ability.hsr_extra_effects) do
+            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_destroy and type(ExtraEffects[v.key].on_destroy) == "function" and not v.ability.on_destroy_flagged then
+                self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = true
+                local on_destroy = ExtraEffects[v.key].on_destroy(self, v.ability, i)
+            end
+        end
+
+        for i,v in ipairs(self.ability.hsr_extra_effects) do
             if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].prevent_destruction and type(ExtraEffects[v.key].prevent_destruction) == "function" then
                 local pd = ExtraEffects[v.key].prevent_destruction(self, v.ability, i)
                 if pd and pd.block then
+                    for i,v in ipairs(self.ability.hsr_extra_effects) do
+                        if v.ability and v.ability.on_destroy_flagged then
+                            self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = false
+                        end
+                    end
                     return
                 end
             end
@@ -602,7 +843,11 @@ function Card:set_ability(...)
     local exist_element = self.ability and self.ability.hsr_extra_effects or {}
     local ret = hookTo(self,...)
 
-    if self.config.center.set == "Joker" and self.area and G.STAGE == G.STAGES.RUN then
+    local dont = false
+    for _,v in ipairs(G.I.CARDAREA) do
+        if v.config.collection then dont = true; break end
+    end
+    if self.config.center.set == "Joker" and not dont and G.STAGE == G.STAGES.RUN then
         if #exist_element < (G.GAME.hsr_maximum_extra_effects or 2) then
             for _ = 1, (G.GAME.hsr_maximum_extra_effects or 2) - #exist_element do
                 local odd = pseudorandom("hsr_feeling_lucky_today") <= 1/(G.GAME.hsr_extra_chance_rate or 5)
@@ -628,6 +873,32 @@ function Card:set_ability(...)
         end
     end
 
+    return ret
+end
+
+local hookTo = Card.generate_UIBox_ability_table
+function Card:generate_UIBox_ability_table(...)
+    local ret = hookTo(self,...)
+    if self.ability and self.ability.hsr_extra_effects then
+        ret.multi_box = ret.multi_box or {}
+        local existing_mb = #ret.multi_box
+        local increase = 0
+        ret.box_colours = ret.box_colours or {}
+        ret.main = ret.main or {}
+        ret.main.main_box_flag = true
+        for _,v in ipairs(self.ability.hsr_extra_effects) do
+            local desc = v.description
+            increase = increase + 1
+            for i, box in ipairs(desc.text_parsed) do
+                for j, line in ipairs(box) do
+                    local final_line = SMODS.localize_box(line, (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {})
+                    ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                    ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                    if not next(ret.info) then ret.box_colours[i] = G.C.UI.BACKGROUND_WHITE end
+                end
+            end
+        end
+    end
     return ret
 end
 
