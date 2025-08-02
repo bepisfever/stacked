@@ -70,13 +70,6 @@ ExtraEffects = {
     score_suit_mult = {
         key = "score_suit_mult", 
         ability = {mult = 5, min_possible = 5, max_possible = 20, suit = "Spades"},
-        description = {
-            text = {
-                "{C:inactive}[Attack]{} {C:inactive}({}{V:2}#3#%{}{C:inactive}){}",
-                "Scored {V:1}#2#{} cards",
-                "give {C:mult}+#1#{} Mult",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.mult, ability_table.suit, Stacked.round(ability_table.perfect, 1), colours = {G.C.SUITS[ability_table.suit], {1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -101,13 +94,6 @@ ExtraEffects = {
     score_suit_chips = {
         key = "score_suit_chips", 
         ability = {chips = 5, min_possible = 25, max_possible = 100, suit = "Spades"},
-        description = {
-            text = {
-                "{C:inactive}[Attack]{} {C:inactive}({}{V:2}#3#%{}{C:inactive}){}",
-                "Scored {V:1}#2#{} cards",
-                "give {C:chips}+#1#{} Chips",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.chips, ability_table.suit, Stacked.round(ability_table.perfect, 1), colours = {G.C.SUITS[ability_table.suit], {1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -131,14 +117,7 @@ ExtraEffects = {
     },
     score_suit_xmult = {
         key = "score_suit_xmult", 
-        ability = {xmult = 1, min_possible = 1.1, max_possible = 2, suit = "Spades"},
-        description = {
-            text = {
-                "{C:inactive}[Attack]{} {C:inactive}({}{V:2}#3#%{}{C:inactive}){}",
-                "Scored {V:1}#2#{} cards",
-                "give {X:mult,C:white}X#1#{} Mult",
-            },
-        },
+        ability = {xmult = 1, min_possible = 1.1, max_possible = 1.5, suit = "Spades"},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.xmult, ability_table.suit, Stacked.round(ability_table.perfect, 1), colours = {G.C.SUITS[ability_table.suit], {1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -163,13 +142,6 @@ ExtraEffects = {
     joker_buff1 = {
         key = "joker_buff1", 
         ability = {buff = 1, min_possible = 1, max_possible = 1.5},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
-                "Joker gives {X:dark_edition,C:white}X#1#{} more",
-                "{C:chips}Chips{}/{C:mult}Mult{}",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -191,12 +163,6 @@ ExtraEffects = {
     joker_buff2 = {
         key = "joker_buff2", 
         ability = {buff = 1, min_possible = 1, max_possible = 2},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
-                "Joker gives {C:blue}+#1#{} Hands",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -227,12 +193,6 @@ ExtraEffects = {
     joker_buff3 = {
         key = "joker_buff3", 
         ability = {buff = 1, min_possible = 1, max_possible = 2},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
-                "Joker gives {C:red}+#1#{} Discards",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -263,14 +223,6 @@ ExtraEffects = {
     joker_buff4 = {
         key = "joker_buff4", 
         ability = {buff = 1, min_possible = 1, max_possible = 2, remaining = 1},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
-                "Joker is {C:red}immune{} to {C:red}destruction{}",
-                "#1# times",
-                "{C:inactive}(Uses left: #2#){}",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -307,13 +259,6 @@ ExtraEffects = {
     joker_buff5 = {
         key = "joker_buff5", 
         ability = {buff = 1, min_possible = 1, max_possible = 1.5},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
-                "Joker's {C:attention}scalings{} are {C:attention}multiplied",
-                "by {X:attention,C:white}X#1#",
-            },
-        },
         in_pool = function(card)
             return false
         end,
@@ -336,13 +281,6 @@ ExtraEffects = {
     joker_buff6 = {
         key = "joker_buff6", 
         ability = {buff = 1, min_possible = 5, max_possible = 20},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
-                "{C:attention}Blind size{} is decreased",
-                "by {C:attention}#1#%{}",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -380,13 +318,6 @@ ExtraEffects = {
     joker_buff7 = {
         key = "joker_buff7", 
         ability = {buff = 1, min_possible = 5, max_possible = 10},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
-                "{C:attention}Retrigger{} this Joker {C:attention}once{}",
-                "for {C:attention}#1#{} rounds",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -422,14 +353,6 @@ ExtraEffects = {
     joker_buff8 = {
         key = "joker_buff8", 
         ability = {buff = 1, min_possible = 1, max_possible = 2, remaining = 1},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
-                "When this Joker would get {C:red}destroyed{},",
-                "{C:attention}reset{} its {C:attention}values{} instead",
-                "{C:inactive}(Uses left: #2#){}",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -481,14 +404,6 @@ ExtraEffects = {
     joker_buff9 = {
         key = "joker_buff9", 
         ability = {buff = "Tarot"},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
-                "When this Joker is {C:attention}destroyed{},",
-                "create a {C:attention}#1#{} card",
-                "{C:inactive}(Must have room)",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -507,16 +422,7 @@ ExtraEffects = {
     },
     joker_buff10 = {
         key = "joker_buff10", 
-        ability = {mult = 0, buff = 1, min_possible = 50, max_possible = 200},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
-                "{C:mult}+#1#{} Mult",
-                "Convert {C:chips}#2#%{} Chips of {C:attention}scored{}",
-                "cards to {C:mult}+Mult{}, decreases by {C:attention}half{}",
-                "at end of round",
-            },
-        },
+        ability = {mult = 0, buff = 1, min_possible = 10, max_possible = 50},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.mult, ability_table.buff * 100, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
@@ -544,19 +450,11 @@ ExtraEffects = {
     joker_buff11 = {
         key = "joker_buff11", 
         ability = {buff = 1, min_possible = 1, max_possible = 5},
-        description = {
-            text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
-                "Increase a {C:attention}random{} Effect's {C:attention}Potency{}",
-                "of this Joker by {C:attention}#1#%{} {C:inactive}(except itself){}",
-                "at end of round",
-            },
-        },
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb8_potency_roll", 0, 5) * 20
+            ability_table.perfect = pseudorandom("jb11_potency_roll", 0, 5) * 20
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -575,7 +473,108 @@ ExtraEffects = {
             end
         end,
     },
+    joker_buff12 = {
+        key = "joker_buff12", 
+        ability = {buff = 1, min_possible = 1, max_possible = 2},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = pseudorandom("jb12_potency_roll", 0, 1) * 100
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        on_destroy = function(card, ability_table)
+            for _ = 1, ability_table.buff do
+                local valid_pool = {}
+                for _,v in ipairs(G.jokers and G.jokers.cards or {}) do
+                    if v ~= card and (not v.ability.hsr_extra_effects or (#v.ability.hsr_extra_effects < G.GAME.hsr_maximum_extra_effects)) then valid_pool[#valid_pool+1] = v end
+                end
+                if #valid_pool > 0 then
+                    local random_joker = pseudorandom_element(valid_pool, pseudoseed("jb12_choose"))
+                    if random_joker then
+                        SMODS.calculate_effect({message = "New Effect!"}, random_joker)
+                        apply_extra_effect(random_joker)
+                    end
+                end
+            end
+        end,
+    },
+    joker_buff13 = {
+        key = "joker_buff13", 
+        ability = {buff = 1, min_possible = 0, max_possible = 4},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = pseudorandom("jb13_potency_roll", 0, 4) * 25
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        probability_vars = function(card, ability_table, probvars, ability_index)
+            probvars = probvars or {}
+            probvars[1] = probvars[1] or 0
+            probvars[1] = probvars[1] + ability_table.buff
+
+            return probvars
+        end,
+    },
+    joker_buff14 = {
+        key = "joker_buff14", 
+        ability = {direction = "left", buff = 1, min_possible = 0.2, max_possible = 0.5},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.direction, ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.direction = pseudorandom_element({"left", "right"}, pseudoseed("jb14_dir_roll"))
+            ability_table.perfect = pseudorandom("jb14_potency_roll", 0, 4) * 25
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        calculate = function(card, context, ability_table)
+            local ret = {}
+            if context.joker_buff then
+                ret.buff = ability_table.buff
+            end
+            local other_joker = nil
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i] == card then other_joker = G.jokers.cards[(ability_table.direction == "right" and i+1) or i-1] end
+            end
+            if other_joker then
+                return SMODS.merge_effects({(SMODS.blueprint_effect(card, other_joker, context) or {}), ret})
+            end
+        end
+    },
 }
+
+--"Borrowed" from TheAutumnCircus, thanks!
+local alias__SMODS_get_probability_vars = SMODS.get_probability_vars
+function SMODS.get_probability_vars(trigger_obj, base_numerator, base_denominator, identifier, from_roll)
+	local probvars = {alias__SMODS_get_probability_vars(trigger_obj, base_numerator, base_denominator, identifier, from_roll)}
+	
+    if not G.jokers then return probvars[1], probvars[2] end
+	if trigger_obj and trigger_obj.config and trigger_obj.config.center and trigger_obj.config.center.set and trigger_obj.config.center.set == "Joker" then
+        if trigger_obj.ability and trigger_obj.ability.hsr_extra_effects then
+            for i,v in ipairs(trigger_obj.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].probability_vars and type(ExtraEffects[v.key].probability_vars) == "function" then
+                    local ret = ExtraEffects[v.key].probability_vars(trigger_obj, v.ability, probvars, i)
+                    if ret then
+                        probvars[1] = ret[1]
+                        probvars[2] = ret[2]
+                    end
+                end
+            end
+        end
+	end
+	
+	return probvars[1], probvars[2]
+end
 
 local function is_food_joker(joker) --thanks dilly
     if joker.ability.isFood then
@@ -607,9 +606,27 @@ end
 --eval apply_extra_effect(G.jokers.cards[1], "score_suit_mult")
 function apply_extra_effect(card, effect, bypass_cap)
     card.ability.hsr_extra_effects = card.ability.hsr_extra_effects or {}
+    if not effect then
+        local pool = {}
+        for i,v in pairs(ExtraEffects) do
+            if v.in_pool and type(v.in_pool) == "function" then
+                if v.in_pool(self) then
+                    pool[#pool+1] = i
+                end
+            else
+                pool[#pool+1] = i
+            end
+        end
+        if #pool > 0 then
+            local random_effect = pseudorandom_element(pool, pseudoseed(card.config.center.key.."_roll_effect_seed"))
+            if random_effect then
+                effect = random_effect
+            end
+        end
+    end
     if ExtraEffects[effect] and (bypass_cap or (#card.ability.hsr_extra_effects < (G.GAME.hsr_maximum_extra_effects or 2))) then
         local new_effect = table.clone(ExtraEffects[effect])
-        local desc = (G.localization.descriptions.ExtraEffects and G.localization.descriptions.ExtraEffects[effect]) or new_effect.description
+        local desc = (G.localization.ExtraEffects and G.localization.ExtraEffects[effect]) or new_effect.description or (G.localization.ExtraEffects and G.localization.ExtraEffects["joker_youforgotyourfuckingdescription"])
         if desc then desc = table.clone(desc); desc.text = {desc.text}; desc = SMODS.stylize_text(desc) end
         card.ability.hsr_extra_effects = card.ability.hsr_extra_effects or {}
         card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects+1] = {key = effect, description = desc}
@@ -629,6 +646,12 @@ function apply_extra_effect(card, effect, bypass_cap)
                 card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability.on_apply_flagged = true
             end
         end
+    end
+end
+
+function Card:apply_extra_effect(effect, bypass_cap)
+    if self.ability and self.config and self.config.center and self.config.center.set == "Joker" then
+        apply_extra_effect(self, effect, bypass_cap)
     end
 end
 
@@ -825,7 +848,7 @@ function Card:calculate_joker(context)
                                 end
                             end
                         elseif type(vv) == "table" and i == "extra" then
-                            recursive_check(t)
+                            recursive_check(vv)
                         end
                     end
                 end
@@ -888,6 +911,18 @@ function Card:generate_UIBox_ability_table(...)
         ret.main.main_box_flag = true
         for _,v in ipairs(self.ability.hsr_extra_effects) do
             local desc = v.description
+            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability) then
+                local loc_key = ExtraEffects[v.key].loc_vars({}, self, v.ability).key
+                if loc_key then
+                    if G.localization.ExtraEffects and G.localization.ExtraEffects[loc_key] then
+                        desc = G.localization.ExtraEffects[loc_key]
+                    elseif ExtraEffects[loc_key] and ExtraEffects[loc_key].description then
+                        desc = ExtraEffects[loc_key].description
+                    end
+                    desc = table.clone(desc)
+                    desc = SMODS.stylize_text(desc)
+                end
+            end
             increase = increase + 1
             for i, box in ipairs(desc.text_parsed) do
                 for j, line in ipairs(box) do
@@ -901,6 +936,78 @@ function Card:generate_UIBox_ability_table(...)
     end
     return ret
 end
+
+SMODS.Atlas ({
+    key = 'anvil',
+    path = 'anvil.png',
+    px = 71,
+    py = 95,
+})
+
+SMODS.Consumable {
+    key = 'anvil',
+    set = 'Spectral',
+    atlas = 'anvil',
+    loc_txt = {
+        name = 'Anvil',
+        text = {
+            "Increase a {C:attention}random{} Effect's {C:attention}Potency{}",
+            "on a {C:attention}random{} Joker by {C:attention}#1#%{}",
+            "{C:inactive}(Up to 100%){}",
+        },
+    },
+    config = { extra = { potency = 20 } },
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extra.potency } }
+    end,
+    use = function(self, card, area, copier)
+        local joker_pool = {}
+            for i,v in ipairs(G.jokers.cards) do
+                if v.ability.hsr_extra_effects then
+                    for _,vv in ipairs(v.ability.hsr_extra_effects) do
+                        if vv.ability and vv.ability.perfect and vv.ability.perfect < 100 then
+                            joker_pool[#joker_pool+1] = v
+                            break
+                        end
+                    end
+                end
+            end
+        local random_joker = pseudorandom_element(joker_pool, pseudoseed("stck_anvil"))
+        local pool = {}
+        for i,v in ipairs(random_joker.ability.hsr_extra_effects) do
+            if v.ability and v.ability.perfect then pool[#pool+1] = v end
+        end
+        local random = pseudorandom_element(pool, pseudoseed("stck_anvil"))
+        if random and random.ability and random.ability.perfect and random.ability.perfect < 100 then
+            random.ability.perfect = math.min(random.ability.perfect + card.ability.extra.potency, 100)
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.4,
+                func = function()
+                    play_sound('tarot1')
+                    card:juice_up(0.3, 0.5)
+                    return true
+                end
+            }))
+        end
+    end,
+    can_use = function(self, card)
+        local joker_test = false
+            for i,v in ipairs(G.jokers.cards) do
+                if v.ability.hsr_extra_effects then
+                    for _,vv in ipairs(v.ability.hsr_extra_effects) do
+                        if vv.ability and vv.ability.perfect and vv.ability.perfect < 100 then
+                            joker_test = true
+                            break
+                        end
+                    end
+                end
+            end
+        if joker_test == true then
+            return true
+        end
+    end
+}
 
 SMODS.stylize_text = function(text, args)
     if not text then return end
