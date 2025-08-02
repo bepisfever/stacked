@@ -1307,3 +1307,10 @@ function SMODS.localize(args, misc_cat)
 
     return args.nodes
 end
+
+SMODS.Atlas({
+    key = "modicon",
+    path = "icon.png",
+    px = 32,
+    py = 32,
+})

@@ -1,7 +1,7 @@
 {
     "id": "stacked",
     "name": "Stacked",
-    "author": ["BepisFever"],
+    "author": ["BepisFever", "aikoyori"],
     "description": "Adding extra effects to Jokers.",
     "prefix": "stck",
     "main_file": "main.lua",
