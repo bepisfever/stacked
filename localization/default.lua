@@ -6,7 +6,7 @@ return{
                 text = {
                     "Increase a {C:attention}random{} Effect's {C:attention}Potency{}",
                     "on a {C:attention}random{} Joker by {C:attention}#1#%{}",
-                    "{C:inactive}(Up to 100%){}",
+                    "{C:inactive}(Up to #2#%){}",
                 },
             },
         },
@@ -197,6 +197,24 @@ return{
                 "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
                 "Copy ability of Joker to the {C:attention}#1#{},",
                 "{X:dark_edition,C:white}X#2#{} {C:mult}Mult{}/{C:chips}Chips{} given",
+            },
+        },
+        joker_buff15 = {
+            text = {
+                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
+                "{X:dark_edition,C:white}X#1#{} {C:mult}Mult{}/{C:chips}Chips{} given",
+                "Increase by {X:dark_edition,C:white}X0.02{} whenever",
+                "a Joker's {C:attention}value{} is increased by",
+                "{C:attention}#2#{} or below {C:inactive,s:0.75}(At least 0.2)",
+                "{C:inactive,s:0.75}(Can gain up to {X:dark_edition,C:white,s:0.75}X0.1{C:inactive,s:0.75} per round)",
+            },
+        },
+        joker_buff16 = {
+            text = {
+                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
+                "Prevent {C:attention}Playing Cards{} from",
+                "being {C:red}destroyed{} #1# times",
+                "{C:inactive}(Uses left: #2#){}",
             },
         },
     },

@@ -553,7 +553,7 @@ ExtraEffects = {
         end,
         randomize_values = function(card, ability_table)
             ability_table.direction = pseudorandom_element({"left", "right"}, pseudoseed("jb14_dir_roll"))
-            ability_table.perfect = pseudorandom("jb14_potency_roll", 0, 4) * 25
+            ability_table.perfect = Stacked.poll_potency{seed = "jb14_potency_roll", min = 0, max = 4}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -572,6 +572,37 @@ ExtraEffects = {
                 return SMODS.merge_effects({(SMODS.blueprint_effect(card, other_joker, context) or {}), ret})
             end
         end
+    },
+    joker_buff15 = {
+        key = "joker_buff15", 
+        ability = {buff = 1, min_possible = 1, max_possible = 5, x = 1},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.x, ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb15_potency_roll", min = 0, max = 25}
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        detect_value_change = function(card, ability_table, change, ability_index)
+            if change >= 0.2 and change <= ability_table.buff and (ability_table.cap_x or 0) < 0.1 then
+                ability_table.x = ability_table.x + 0.02
+                ability_table.cap_x = (ability_table.cap_x or 0) + 0.02
+                SMODS.calculate_effect({message = "Upgraded!", colour = G.C.DARK_EDITION}, card)
+            end
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.end_of_round and context.main_eval then
+                ability_table.cap_x = 0
+            end
+            if context.joker_buff then
+                return{
+                    buff = ability_table.x
+                }
+            end
+        end,
     },
 }
 
@@ -757,6 +788,31 @@ function Game:update(...)
                     ExtraEffects[v.key].update_values(card, v.ability, i)
                 end
             end
+
+            for i,v in ipairs(card.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].detect_value_change and type(ExtraEffects[v.key].detect_value_change) == "function" then
+                    local function check_change(t,ref)
+                        for ii,vv in pairs(t) do
+                            if type(vv) == "table" then
+                                ref[ii] = ref[ii] or {}
+                                check_change(vv,ref[ii])
+                            elseif type(vv) == "number" and ref[ii] and type(ref[ii]) == "number" and vv ~= ref[ii] then
+                                local diff = vv - ref[ii]
+                                ExtraEffects[v.key].detect_value_change(card, v.ability, diff, i, ii)
+                            end
+                        end
+                    end
+
+                    for _,joker in ipairs(G.jokers.cards) do
+                        joker.hsr_old_ability = joker.hsr_old_ability or {}
+                        check_change(joker.ability, joker.hsr_old_ability)
+                        local clone = table.clone(joker.ability)
+                        if joker.hsr_old_ability then joker.hsr_old_ability = nil end
+                        joker.hsr_old_ability = clone
+                    end
+                end
+            end
+
             local clone = table.clone(card.ability)
             if clone.hsr_old_ability then clone.hsr_old_ability = nil end
             card.hsr_old_ability = clone
@@ -768,6 +824,8 @@ end
 
 local hookTo = CardArea.emplace
 function CardArea:emplace(card, location, stay_flipped)
+    card.hsr_old_cardarea = card.area
+    card.hsr_is_destroyed_perhaps = false
     local ret = hookTo(self, card, location, stay_flipped)
     if self == G.jokers then
         if card.ability and card.ability.hsr_extra_effects then
@@ -782,10 +840,20 @@ function CardArea:emplace(card, location, stay_flipped)
     return ret
 end
 
+local hookTo = CardArea.remove_card
+function CardArea:remove_card(card, discarded_only)
+    if card and type(card) == "table" then
+        card.hsr_old_cardarea = card.area
+        card.hsr_is_destroyed_perhaps = true
+    end
+    local ret = hookTo(self, card, discarded_only)
+    return ret
+end
+
 local hookTo = Card.remove
 function Card:remove()
     if is_food_joker(self) or (self.config.center.pools and self.config.center.pools.Food) then 
-        if self.ability and self.ability.hsr_extra_effects then
+        if self.ability and self.ability.hsr_extra_effects and (self.area == G.jokers or (self.hsr_old_cardarea == G.jokers and self.hsr_is_destroyed_perhaps)) then
             for i,v in ipairs(self.ability.hsr_extra_effects) do
                 if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_destroy and type(ExtraEffects[v.key].on_destroy) == "function" and not v.ability.on_destroy_flagged then
                     self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = true
@@ -1077,14 +1145,14 @@ SMODS.Consumable {
     atlas = 'anvil',
     config = { extra = { potency = 20 } },
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra.potency } }
+        return { vars = { card.ability.extra.potency, G.GAME.hsr_potency_cap or 100 } }
     end,
     use = function(self, card, area, copier)
         local joker_pool = {}
             for i,v in ipairs(G.jokers.cards) do
                 if v.ability.hsr_extra_effects then
                     for _,vv in ipairs(v.ability.hsr_extra_effects) do
-                        if vv.ability and vv.ability.perfect and vv.ability.perfect < 100 then
+                        if vv.ability and vv.ability.perfect and vv.ability.perfect < G.GAME.hsr_potency_cap or 100 then
                             joker_pool[#joker_pool+1] = v
                             break
                         end
@@ -1097,8 +1165,8 @@ SMODS.Consumable {
             if v.ability and v.ability.perfect then pool[#pool+1] = v end
         end
         local random = pseudorandom_element(pool, pseudoseed("stck_anvil"))
-        if random and random.ability and random.ability.perfect and random.ability.perfect < 100 then
-            random.ability.perfect = math.min(random.ability.perfect + card.ability.extra.potency, 100)
+        if random and random.ability and random.ability.perfect and random.ability.perfect < G.GAME.hsr_potency_cap or 100 then
+            random.ability.perfect = math.min(random.ability.perfect + card.ability.extra.potency, G.GAME.hsr_potency_cap or 100)
             G.E_MANAGER:add_event(Event({
                 trigger = 'after',
                 delay = 0.4,
@@ -1115,7 +1183,7 @@ SMODS.Consumable {
             for i,v in ipairs(G.jokers.cards) do
                 if v.ability.hsr_extra_effects then
                     for _,vv in ipairs(v.ability.hsr_extra_effects) do
-                        if vv.ability and vv.ability.perfect and vv.ability.perfect < 100 then
+                        if vv.ability and vv.ability.perfect and vv.ability.perfect < G.GAME.hsr_potency_cap or 100 then
                             joker_test = true
                             break
                         end
