@@ -1,9 +1,78 @@
 return{
+    descriptions = {
+        Spectral = {
+            c_stck_anvil = {
+                name = 'Anvil',
+                text = {
+                    "Increase a {C:attention}random{} Effect's {C:attention}Potency{}",
+                    "on a {C:attention}random{} Joker by {C:attention}#1#%{}",
+                    "{C:inactive}(Up to 100%){}",
+                },
+            },
+        },
+        Voucher = {
+            v_stck_e_slot_upgrade1 = {
+                name = "Multitalented",
+                text = {
+                    "Increases {C:attention}Maximum Effect Slots{} of",
+                    "Jokers by {C:attention}1{}",
+                    "{C:inactive,s:0.65}(Art Credit: Flote)",
+                },
+            },
+            v_stck_e_slot_upgrade2 = {
+                name = "Prodigy",
+                text = {
+                    "Increases {C:attention}Maximum Effect Slots{} of",
+                    "Jokers by {C:attention}1{}",
+                    "{C:inactive,s:0.65}(Art Credit: Flote)",
+                },
+            },
+            v_stck_e_rate_upgrade1 = {
+                name = "Clown Education",
+                text = {
+                    "Increases {C:attention}Effect Spawn Rate{} of",
+                    "Jokers by {C:attention}10%{}",
+                    "{C:inactive,s:0.65}(Art Credit: Flote)",
+                },
+            },
+            v_stck_e_rate_upgrade2 = {
+                name = "Comedy Degree",
+                text = {
+                    "Increases {C:attention}Effect Spawn Rate{} of",
+                    "Jokers by {C:attention}10%{}",
+                    "{C:inactive,s:0.65}(Art Credit: Flote)",
+                },
+            },
+            v_stck_e_potency_upgrade1 = {
+                name = "Big Stacks",
+                text = {
+                    "Increases {C:attention}Effect Potency Cap{} of",
+                    "Jokers by {C:attention}25%{}",
+                    "{C:inactive,s:0.65}(Art Credit: Flote)",
+                },
+            },
+            v_stck_e_potency_upgrade2 = {
+                name = "Heavy Stacker",
+                text = {
+                    "Increases {C:attention}Effect Potency Cap{} of",
+                    "Jokers by {C:attention}25%{}",
+                    "{C:inactive,s:0.65}(Art Credit: Flote)",
+                },
+            },
+        },
+    },
     ExtraEffects = {
         joker_youforgotyourfuckingdescription = {
             text = {
                 "{C:inactive}[Passive]{} {C:inactive}({}{C:green}69%{}{C:inactive}){}",
                 "wheres your description bro"
+            },
+        },
+        joker_effect_pages = {
+            text = {
+                "[Page #1#/#2#]",
+                "{s:0.7}Use {C:attention,s:0.7}scroll-wheel{s:0.7} to turn",
+                "{s:0.7}Effect pages",
             },
         },
         score_suit_mult = {
@@ -129,6 +198,12 @@ return{
                 "Copy ability of Joker to the {C:attention}#1#{},",
                 "{X:dark_edition,C:white}X#2#{} {C:mult}Mult{}/{C:chips}Chips{} given",
             },
+        },
+    },
+    misc = {
+        dictionary = {
+            joker_buff14_direction_left = "left",
+            joker_buff14_direction_right = "right",
         },
     }
 }

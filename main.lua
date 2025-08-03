@@ -1,6 +1,7 @@
 ---@diagnostic disable: unused-function
 SMODS.current_mod.optional_features = {retrigger_joker = true}
 Stacked = SMODS.current_mod
+local effect_per_page = 2
 
 function Stacked.round(number, digit_position) 
     digit_position = digit_position or 0
@@ -66,6 +67,20 @@ function Stacked.ischips(str)
     return false
 end
 
+function Stacked.poll_potency(args)
+    local args = args or {}
+    args.round = args.round or 1
+    args.seed = args.seed or "stacked_poll_potency"
+    args.unaff_cap = args.unaff_cap or false
+    local default_args_max = args.max or 10
+    args.max = Stacked.round((args.max or 10) * (((args.unaff_cap and 100) or G.GAME.hsr_potency_cap or 100) / 100), 0)
+    args.min = args.min or 0
+    
+    local potency_roll = Stacked.round(pseudorandom(args.seed, args.min, args.max) * (100/default_args_max), args.round)
+
+    return math.min((G.GAME.hsr_min_potency and math.max(potency_roll, G.GAME.hsr_min_potency)) or potency_roll, ((args.unaff_cap and 100) or G.GAME.hsr_potency_cap or 100))
+end
+
 ExtraEffects = {
     score_suit_mult = {
         key = "score_suit_mult", 
@@ -75,7 +90,7 @@ ExtraEffects = {
         end,
         randomize_values = function(card, ability_table)
             ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssm_randomize"))
-            ability_table.perfect = pseudorandom("ssm_potency_roll", 0, 10) * 10
+            ability_table.perfect = Stacked.poll_potency{seed = "ssm_potency_roll", min = 0, max = 10}
             ability_table.mult = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -99,7 +114,7 @@ ExtraEffects = {
         end,
         randomize_values = function(card, ability_table)
             ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssc_randomize"))
-            ability_table.perfect = pseudorandom("ssc_potency_roll", 0, 10) * 10
+            ability_table.perfect = Stacked.poll_potency{seed = "ssc_potency_roll", min = 0, max = 10}
             ability_table.chips = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -123,7 +138,7 @@ ExtraEffects = {
         end,
         randomize_values = function(card, ability_table)
             ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssx_randomize"))
-            ability_table.perfect = pseudorandom("ssx_potency_roll", 0, 10) * 10
+            ability_table.perfect = Stacked.poll_potency{seed = "ssx_potency_roll", min = 0, max = 10}
             ability_table.xmult = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -146,7 +161,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb1_potency_roll", 0, 5) * 20
+            ability_table.perfect = Stacked.poll_potency{seed = "jb1_potency_roll", min = 0, max = 5}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -167,7 +182,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb2_potency_roll", 0, 1) * 100
+            ability_table.perfect = Stacked.poll_potency{seed = "jb2_potency_roll", min = 0, max = 1}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -197,7 +212,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb3_potency_roll", 0, 1) * 100
+            ability_table.perfect = Stacked.poll_potency{seed = "jb3_potency_roll", min = 0, max = 1}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -227,7 +242,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb4_potency_roll", 0, 1) * 100
+            ability_table.perfect = Stacked.poll_potency{seed = "jb4_potency_roll", min = 0, max = 1}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
             ability_table.remaining = ability_table.buff
         end,
@@ -266,7 +281,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb5_potency_roll", 0, 5) * 100
+            ability_table.perfect = Stacked.poll_potency{seed = "jb5_potency_roll", min = 0, max = 5}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -285,7 +300,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb6_potency_roll", 0, 10) * 10
+            ability_table.perfect = Stacked.poll_potency{seed = "jb6_potency_roll", min = 0, max = 10}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -322,7 +337,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb7_potency_roll", 0, 5) * 20
+            ability_table.perfect = Stacked.poll_potency{seed = "jb7_potency_roll", min = 0, max = 5}
             ability_table.max_buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
             ability_table.buff = ability_table.max_buff
         end,
@@ -357,7 +372,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb8_potency_roll", 0, 1) * 100
+            ability_table.perfect = Stacked.poll_potency{seed = "jb8_potency_roll", min = 0, max = 1}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
             ability_table.remaining = ability_table.buff
         end,
@@ -408,7 +423,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb9_potency_roll", 0, 1) * 100
+            ability_table.perfect = Stacked.poll_potency{seed = "jb9_potency_roll", min = 0, max = 1}
             ability_table.buff = (ability_table.perfect >= 50) and "Spectral" or "Tarot"
         end,
         update_values = function(card, ability_table)
@@ -427,7 +442,7 @@ ExtraEffects = {
             return {vars = {ability_table.mult, ability_table.buff * 100, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb10_potency_roll", 0, 100) * 1
+            ability_table.perfect = Stacked.poll_potency{seed = "jb10_potency_roll", min = 0, max = 100}
             ability_table.buff = ((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)))/100
         end,
         update_values = function(card, ability_table)
@@ -453,8 +468,15 @@ ExtraEffects = {
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
+        in_pool = function(card)
+            if not card.ability or not card.ability.hsr_extra_effects or #card.ability.hsr_extra_effects <= 0 then
+                return false
+            else
+                return true
+            end
+        end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb11_potency_roll", 0, 5) * 20
+            ability_table.perfect = Stacked.poll_potency{seed = "jb11_potency_roll", min = 0, max = 5}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -468,7 +490,7 @@ ExtraEffects = {
                 end
                 local random = pseudorandom_element(pool, pseudoseed("jb11_effect"))
                 if random and random.ability and random.ability.perfect and random.ability.perfect < 100 then
-                    random.ability.perfect = math.min(random.ability.perfect + ability_table.buff, 100)
+                    random.ability.perfect = math.min(random.ability.perfect + ability_table.buff, G.GAME.hsr_potency_cap or 100)
                 end
             end
         end,
@@ -480,7 +502,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb12_potency_roll", 0, 1) * 100
+            ability_table.perfect = Stacked.poll_potency{seed = "jb12_potency_roll", min = 0, max = 1}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -509,7 +531,7 @@ ExtraEffects = {
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
-            ability_table.perfect = pseudorandom("jb13_potency_roll", 0, 4) * 25
+            ability_table.perfect = Stacked.poll_potency{seed = "jb13_potency_roll", min = 0, max = 4}
             ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
         end,
         update_values = function(card, ability_table)
@@ -527,7 +549,7 @@ ExtraEffects = {
         key = "joker_buff14", 
         ability = {direction = "left", buff = 1, min_possible = 0.2, max_possible = 0.5},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.direction, ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {localize("joker_buff14_direction_"..ability_table.direction), ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.direction = pseudorandom_element({"left", "right"}, pseudoseed("jb14_dir_roll"))
@@ -610,7 +632,7 @@ function apply_extra_effect(card, effect, bypass_cap)
         local pool = {}
         for i,v in pairs(ExtraEffects) do
             if v.in_pool and type(v.in_pool) == "function" then
-                if v.in_pool(self) then
+                if v.in_pool(card) then
                     pool[#pool+1] = i
                 end
             else
@@ -655,11 +677,58 @@ function Card:apply_extra_effect(effect, bypass_cap)
     end
 end
 
+local hoveredCard = nil
+
+local ref = Card.hover
+function Card:hover()
+    if self.hsr_changing_page then self.hsr_changing_page = nil end
+    hoveredCard = self
+    local ret = ref(self)
+    return ret
+end
+
+local ref = Card.stop_hover
+function Card:stop_hover()
+    if hoveredCard == self and not self.hsr_changing_page then
+        hoveredCard = nil
+    end
+    local ret = ref(self)
+    return ret
+end
+
+--:stop_hover()
+local hookTo = love.wheelmoved 
+function love.wheelmoved(x, y)
+    if y > 0 then
+        --text = "Mouse wheel moved up"
+        if hoveredCard and hoveredCard.ability and hoveredCard.ability.hsr_extra_effects and #hoveredCard.ability.hsr_extra_effects > effect_per_page then
+            hoveredCard.hsr_effect_page = hoveredCard.hsr_effect_page or 1
+            hoveredCard.hsr_effect_page = math.min(hoveredCard.hsr_effect_page + 1, math.ceil(#hoveredCard.ability.hsr_extra_effects/effect_per_page))
+            hoveredCard.hsr_changing_page = true
+            hoveredCard:stop_hover()
+            hoveredCard:hover()
+        end
+    elseif y < 0 then
+        --text = "Mouse wheel moved down"
+        if hoveredCard and hoveredCard.ability and hoveredCard.ability.hsr_extra_effects and #hoveredCard.ability.hsr_extra_effects > effect_per_page then
+            hoveredCard.hsr_effect_page = hoveredCard.hsr_effect_page or 1
+            hoveredCard.hsr_effect_page = hoveredCard.hsr_effect_page - 1
+            if hoveredCard.hsr_effect_page <= 1 then hoveredCard.hsr_effect_page = 1 end
+            hoveredCard.hsr_changing_page = true
+            hoveredCard:stop_hover()
+            hoveredCard:hover()
+        end
+    end
+    local ret = hookTo(x, y)
+    return ret
+end
+
 local hookTo = Game.start_run
 function Game:start_run(...)
     local ret = hookTo(self,...)
     self.GAME.hsr_extra_chance_rate = self.GAME.hsr_extra_chance_rate or 5
     self.GAME.hsr_maximum_extra_effects = self.GAME.hsr_maximum_extra_effects or 2
+    self.GAME.hsr_potency_cap = self.GAME.hsr_potency_cap or 100
     return ret
 end
 
@@ -905,31 +974,82 @@ function Card:generate_UIBox_ability_table(...)
     if self.ability and self.ability.hsr_extra_effects then
         ret.multi_box = ret.multi_box or {}
         local existing_mb = #ret.multi_box
+        local effect_amt = #self.ability.hsr_extra_effects
         local increase = 0
         ret.box_colours = ret.box_colours or {}
         ret.main = ret.main or {}
         ret.main.main_box_flag = true
-        for _,v in ipairs(self.ability.hsr_extra_effects) do
-            local desc = v.description
-            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability) then
-                local loc_key = ExtraEffects[v.key].loc_vars({}, self, v.ability).key
-                if loc_key then
-                    if G.localization.ExtraEffects and G.localization.ExtraEffects[loc_key] then
-                        desc = G.localization.ExtraEffects[loc_key]
-                    elseif ExtraEffects[loc_key] and ExtraEffects[loc_key].description then
-                        desc = ExtraEffects[loc_key].description
+        if effect_amt <= effect_per_page then
+            for _,v in ipairs(self.ability.hsr_extra_effects) do
+                local desc = v.description
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability) then
+                    local loc_key = ExtraEffects[v.key].loc_vars({}, self, v.ability).key
+                    if loc_key then
+                        if G.localization.ExtraEffects and G.localization.ExtraEffects[loc_key] then
+                            desc = G.localization.ExtraEffects[loc_key]
+                        elseif ExtraEffects[loc_key] and ExtraEffects[loc_key].description then
+                            desc = ExtraEffects[loc_key].description
+                        end
+                        desc = table.clone(desc)
+                        desc.text = {desc.text}
+                        desc = SMODS.stylize_text(desc)
                     end
-                    desc = table.clone(desc)
-                    desc = SMODS.stylize_text(desc)
+                end
+                increase = increase + 1
+                for i, box in ipairs(desc.text_parsed) do
+                    for j, line in ipairs(box) do
+                        local final_line = SMODS.localize_box(line, (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {})
+                        ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                        ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                        if not next(ret.info) then ret.box_colours[i] = G.C.UI.BACKGROUND_WHITE end
+                    end
                 end
             end
+        else
+            self.hsr_effect_page = self.hsr_effect_page or 1
+            local max_pages = math.ceil(effect_amt/effect_per_page)
+            self.hsr_effect_page = math.min(self.hsr_effect_page, max_pages)
+            local current_page = self.hsr_effect_page
+
+            for i = 1 + (effect_per_page * (current_page - 1)), effect_per_page + (effect_per_page * (current_page - 1)) do
+                if self.ability.hsr_extra_effects[i] then
+                    local v = self.ability.hsr_extra_effects[i]
+                    local desc = v.description
+                    if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability) then
+                        local loc_key = ExtraEffects[v.key].loc_vars({}, self, v.ability).key
+                        if loc_key then
+                            if G.localization.ExtraEffects and G.localization.ExtraEffects[loc_key] then
+                                desc = G.localization.ExtraEffects[loc_key]
+                            elseif ExtraEffects[loc_key] and ExtraEffects[loc_key].description then
+                                desc = ExtraEffects[loc_key].description
+                            end
+                            desc = table.clone(desc)
+                            desc = SMODS.stylize_text(desc)
+                        end
+                    end
+                    increase = increase + 1
+                    for i, box in ipairs(desc.text_parsed) do
+                        for j, line in ipairs(box) do
+                            local final_line = SMODS.localize_box(line, (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {})
+                            ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                            ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                            if not next(ret.info) then ret.box_colours[i] = G.C.UI.BACKGROUND_WHITE end
+                        end
+                    end
+                end
+            end
+
+            local desc = G.localization.ExtraEffects.joker_effect_pages
+            desc = table.clone(desc)
+            desc.text = {desc.text}
+            desc = SMODS.stylize_text(desc)
             increase = increase + 1
             for i, box in ipairs(desc.text_parsed) do
                 for j, line in ipairs(box) do
-                    local final_line = SMODS.localize_box(line, (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {})
+                    local final_line = SMODS.localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}})
                     ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                     ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
-                    if not next(ret.info) then ret.box_colours[i] = G.C.UI.BACKGROUND_WHITE end
+                    ret.box_colours[existing_mb + increase + 1] = G.C.CLEAR
                 end
             end
         end
@@ -944,18 +1064,17 @@ SMODS.Atlas ({
     py = 95,
 })
 
+SMODS.Atlas ({
+    key = 'upgrade_vouchers',
+    path = 'upgrade_vouchers.png',
+    px = 71,
+    py = 95,
+})
+
 SMODS.Consumable {
     key = 'anvil',
     set = 'Spectral',
     atlas = 'anvil',
-    loc_txt = {
-        name = 'Anvil',
-        text = {
-            "Increase a {C:attention}random{} Effect's {C:attention}Potency{}",
-            "on a {C:attention}random{} Joker by {C:attention}#1#%{}",
-            "{C:inactive}(Up to 100%){}",
-        },
-    },
     config = { extra = { potency = 20 } },
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.potency } }
@@ -1007,6 +1126,69 @@ SMODS.Consumable {
             return true
         end
     end
+}
+
+SMODS.Voucher{
+    key = "e_slot_upgrade1",
+    atlas = "upgrade_vouchers",
+    pos = {x = 0, y = 0},
+    cost = 10,
+    redeem = function(self, card)
+        G.GAME.hsr_maximum_extra_effects = G.GAME.hsr_maximum_extra_effects + 1
+    end,
+}
+
+SMODS.Voucher{
+    key = "e_slot_upgrade2",
+    requires = {"e_slot_upgrade1"},
+    atlas = "upgrade_vouchers",
+    pos = {x = 1, y = 0},
+    cost = 10,
+    redeem = function(self, card)
+        G.GAME.hsr_maximum_extra_effects = G.GAME.hsr_maximum_extra_effects + 1
+    end,
+}
+
+SMODS.Voucher{
+    key = "e_rate_upgrade1",
+    atlas = "upgrade_vouchers",
+    pos = {x = 0, y = 1},
+    cost = 10,
+    redeem = function(self, card)
+        G.GAME.hsr_extra_chance_rate = G.GAME.hsr_extra_chance_rate * 0.9
+    end,
+}
+
+SMODS.Voucher{
+    key = "e_rate_upgrade2",
+    requires = {"e_rate_upgrade1"},
+    atlas = "upgrade_vouchers",
+    pos = {x = 1, y = 1},
+    cost = 10,
+    redeem = function(self, card)
+        G.GAME.hsr_extra_chance_rate = G.GAME.hsr_extra_chance_rate * 0.9
+    end,
+}
+
+SMODS.Voucher{
+    key = "e_potency_upgrade1",
+    atlas = "upgrade_vouchers",
+    pos = {x = 0, y = 2},
+    cost = 10,
+    redeem = function(self, card)
+        G.GAME.hsr_potency_cap = G.GAME.hsr_potency_cap + 25
+    end,
+}
+
+SMODS.Voucher{
+    key = "e_potency_upgrade2",
+    requires = {"e_potency_upgrade1"},
+    atlas = "upgrade_vouchers",
+    pos = {x = 1, y = 2},
+    cost = 10,
+    redeem = function(self, card)
+        G.GAME.hsr_potency_cap = G.GAME.hsr_potency_cap + 25
+    end,
 }
 
 SMODS.stylize_text = function(text, args)
