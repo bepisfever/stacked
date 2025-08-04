@@ -330,10 +330,7 @@ function Card:calculate_joker(context)
             if v.ability and v.ability.hsr_extra_effects then
                 for ii,vv in ipairs(v.ability.hsr_extra_effects) do
                     if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].modify_calculate and type(ExtraEffects[vv.key].modify_calculate) == "function" then
-                        local ret2 = ExtraEffects[vv.key].modify_calculate(v, context, self, vv.ability, table.clone(ret), ii)
-                        if ret2 then
-                            ret = ret2
-                        end
+                        ExtraEffects[vv.key].modify_calculate(v, context, self, vv.ability, ret, ii)
                     end
                 end
             end

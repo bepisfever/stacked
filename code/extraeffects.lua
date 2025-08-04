@@ -580,7 +580,7 @@ ExtraEffects = {
         modify_calculate = function(card, context, other_card, ability_table, ret, ability_index)
             local function mult_to_xmult(t)
                 for i,v in pairs(t) do
-                    if type(v) == "table" then
+                    if type(v) == "table" and i == "extra" then
                         mult_to_xmult(v)
                     elseif i == "mult" then
                         t["xmult"] = 1 + (math.floor(v) * ability_table.buff)
@@ -595,12 +595,17 @@ ExtraEffects = {
                 end
             end
 
-            local valid = false
-            for i,v in ipairs(G.jokers.cards) do
-                if v == card and ((ability_table.direction == "left" and other_card == G.jokers.cards[i-1]) or (ability_table.direction == "right" and other_card == G.jokers.cards[i+1])) then valid = true; break end
+            for i,v in ipairs(G.jokers and G.jokers.cards or {}) do
+                if v == card then
+                    if ability_table.direction == "left" and G.jokers.cards[i-1] == other_card then
+                        mult_to_xmult(ret)
+                        break
+                    elseif ability_table.direction == "right" and G.jokers.cards[i+1] == other_card then
+                        mult_to_xmult(ret)
+                        break
+                    end
+                end
             end
-
-            return (valid and mult_to_xmult(ret)) or ret
         end,
     },
     joker_buff18 = {
