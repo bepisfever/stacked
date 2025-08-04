@@ -1,0 +1,634 @@
+--"Borrowed" from TheAutumnCircus, thanks!
+local alias__SMODS_get_probability_vars = SMODS.get_probability_vars
+function SMODS.get_probability_vars(trigger_obj, base_numerator, base_denominator, identifier, from_roll)
+	local probvars = {alias__SMODS_get_probability_vars(trigger_obj, base_numerator, base_denominator, identifier, from_roll)}
+	
+    if not G.jokers then return probvars[1], probvars[2] end
+	if trigger_obj and trigger_obj.config and trigger_obj.config.center and trigger_obj.config.center.set and trigger_obj.config.center.set == "Joker" then
+        if trigger_obj.ability and trigger_obj.ability.hsr_extra_effects then
+            for i,v in ipairs(trigger_obj.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].probability_vars and type(ExtraEffects[v.key].probability_vars) == "function" then
+                    local ret = ExtraEffects[v.key].probability_vars(trigger_obj, v.ability, probvars, i)
+                    if ret then
+                        probvars[1] = ret[1]
+                        probvars[2] = ret[2]
+                    end
+                end
+            end
+        end
+	end
+	
+	return probvars[1], probvars[2]
+end
+
+stck_hoveredCard = nil
+local ref = Card.hover
+function Card:hover()
+    if self.hsr_changing_page then self.hsr_changing_page = nil end
+    stck_hoveredCard = self
+    local ret = ref(self)
+    return ret
+end
+
+local ref = Card.stop_hover
+function Card:stop_hover()
+    if stck_hoveredCard == self and not self.hsr_changing_page then
+        stck_hoveredCard = nil
+    end
+    local ret = ref(self)
+    return ret
+end
+
+--:stop_hover()
+local hookTo = love.wheelmoved 
+function love.wheelmoved(x, y)
+    if y > 0 then
+        --text = "Mouse wheel moved up"
+        if stck_hoveredCard and stck_hoveredCard.ability and stck_hoveredCard.ability.hsr_extra_effects and #stck_hoveredCard.ability.hsr_extra_effects > Stacked.effect_per_page then
+            stck_hoveredCard.hsr_effect_page = stck_hoveredCard.hsr_effect_page or 1
+            stck_hoveredCard.hsr_effect_page = stck_hoveredCard.hsr_effect_page - 1
+            if stck_hoveredCard.hsr_effect_page <= 1 then stck_hoveredCard.hsr_effect_page = 1 end
+            stck_hoveredCard.hsr_changing_page = true
+            stck_hoveredCard:stop_hover()
+            stck_hoveredCard:hover()
+        end
+    elseif y < 0 then
+        --text = "Mouse wheel moved down"
+        if stck_hoveredCard and stck_hoveredCard.ability and stck_hoveredCard.ability.hsr_extra_effects and #stck_hoveredCard.ability.hsr_extra_effects > Stacked.effect_per_page then
+            stck_hoveredCard.hsr_effect_page = stck_hoveredCard.hsr_effect_page or 1
+            stck_hoveredCard.hsr_effect_page = math.min(stck_hoveredCard.hsr_effect_page + 1, math.ceil(#stck_hoveredCard.ability.hsr_extra_effects/Stacked.effect_per_page))
+            stck_hoveredCard.hsr_changing_page = true
+            stck_hoveredCard:stop_hover()
+            stck_hoveredCard:hover()
+        end
+    end
+    local ret = hookTo(x, y)
+    return ret
+end
+
+local hookTo = Game.start_run
+function Game:start_run(...)
+    local ret = hookTo(self,...)
+    self.GAME.hsr_extra_chance_rate = self.GAME.hsr_extra_chance_rate or 5
+    self.GAME.hsr_maximum_extra_effects = self.GAME.hsr_maximum_extra_effects or 2
+    self.GAME.hsr_potency_cap = self.GAME.hsr_potency_cap or 100
+    return ret
+end
+
+local hookTo = Game.update
+function Game:update(...)
+    for _,card in ipairs((G.jokers and G.jokers.cards) or {}) do
+        if card.ability and card.ability.hsr_extra_effects then
+            for i,v in ipairs(card.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].modify_scale and type(ExtraEffects[v.key].modify_scale) == "function" then
+                    card.hsr_old_ability = card.hsr_old_ability or {}
+                    local scale_mod = ExtraEffects[v.key].modify_scale(card, v.ability, i) and ExtraEffects[v.key].modify_scale(card, v.ability, i).scale or 1
+                    local function modify(t,n,ref)
+                        for ii,vv in pairs(t) do
+                            if type(vv) == "table" then
+                                ref[ii] = ref[ii] or {}
+                                modify(vv,n,ref[ii])
+                            elseif type(vv) == "number" and ref[ii] and type(ref[ii]) == "number" and vv ~= ref[ii] then
+                                local diff = vv - ref[ii]
+                                t[ii] = ref[ii] + (diff * n)
+                            end
+                        end
+                    end
+                    modify(card.ability, scale_mod, card.hsr_old_ability)
+                end
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].update_values and type(ExtraEffects[v.key].update_values) == "function" then
+                    ExtraEffects[v.key].update_values(card, v.ability, i)
+                end
+            end
+
+            for i,v in ipairs(card.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].detect_value_change and type(ExtraEffects[v.key].detect_value_change) == "function" then
+                    local function check_change(t,ref)
+                        for ii,vv in pairs(t) do
+                            if type(vv) == "table" then
+                                ref[ii] = ref[ii] or {}
+                                check_change(vv,ref[ii])
+                            elseif type(vv) == "number" and ref[ii] and type(ref[ii]) == "number" and vv ~= ref[ii] then
+                                local diff = vv - ref[ii]
+                                ExtraEffects[v.key].detect_value_change(card, v.ability, diff, i, ii)
+                            end
+                        end
+                    end
+
+                    for _,joker in ipairs(G.jokers.cards) do
+                        joker.hsr_old_ability = joker.hsr_old_ability or {}
+                        check_change(joker.ability, joker.hsr_old_ability)
+                        local clone = table.clone(joker.ability)
+                        if joker.hsr_old_ability then joker.hsr_old_ability = nil end
+                        joker.hsr_old_ability = clone
+                    end
+                end
+            end
+
+            local clone = table.clone(card.ability)
+            if clone.hsr_old_ability then clone.hsr_old_ability = nil end
+            card.hsr_old_ability = clone
+        end
+    end
+    local ret = hookTo(self,...)
+    return ret
+end
+
+local hookTo = CardArea.emplace
+function CardArea:emplace(card, location, stay_flipped)
+    card.hsr_old_cardarea = card.area
+    card.hsr_is_destroyed_perhaps = false
+    local ret = hookTo(self, card, location, stay_flipped)
+    if self == G.jokers then
+        if card.ability and card.ability.hsr_extra_effects then
+            for i,v in ipairs(card.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_apply and type(ExtraEffects[v.key].on_apply) == "function" then
+                    ExtraEffects[v.key].on_apply(card, v.ability, v.ability.on_apply_flagged or false, i)
+                    v.ability.on_apply_flagged = true
+                end
+            end
+        end
+    end
+    return ret
+end
+
+local hookTo = CardArea.remove_card
+function CardArea:remove_card(card, discarded_only)
+    if card and type(card) == "table" then
+        card.hsr_old_cardarea = card.area
+        card.hsr_is_destroyed_perhaps = true
+    end
+    local ret = hookTo(self, card, discarded_only)
+    return ret
+end
+
+local hookTo = Card.remove
+function Card:remove()
+    if Stacked.is_food_joker(self) or (self.config.center.pools and self.config.center.pools.Food) then 
+        if self.ability and self.ability.hsr_extra_effects and (self.area == G.jokers or (self.hsr_old_cardarea == G.jokers and self.hsr_is_destroyed_perhaps)) then
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_destroy and type(ExtraEffects[v.key].on_destroy) == "function" and not v.ability.on_destroy_flagged then
+                    self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = true
+                    local on_destroy = ExtraEffects[v.key].on_destroy(self, v.ability, i)
+                end
+            end
+
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].prevent_destruction and type(ExtraEffects[v.key].prevent_destruction) == "function" then
+                    local pd = ExtraEffects[v.key].prevent_destruction(self, v.ability, i)
+                    if pd and pd.block then
+                        local new_card = copy_card(self)
+                        for i,v in ipairs(new_card.ability.hsr_extra_effects) do
+                            if v.ability then
+                                new_card.ability.hsr_extra_effects[i].ability.on_destroy_flagged = false
+                                new_card.ability.hsr_extra_effects[i].ability.on_apply_flagged = false
+                                new_card.ability.hsr_extra_effects[i].ability.on_remove_flagged = false
+                            end
+                        end
+                        if new_card.add_to_deck then new_card:add_to_deck() end
+                        G.jokers:emplace(new_card)
+                    end
+                end
+            end
+
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_remove and type(ExtraEffects[v.key].on_remove) == "function" and not v.ability.on_remove_flagged then
+                    v.ability.on_remove_flagged = true
+                    local on_remove = ExtraEffects[v.key].on_remove(self, v.ability, true, i)
+                end
+            end
+        end
+        local ret = hookTo(self)
+        return ret
+    else
+        if self.ability and self.ability.hsr_extra_effects and self.area == G.jokers then
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_destroy and type(ExtraEffects[v.key].on_destroy) == "function" and not v.ability.on_destroy_flagged then
+                    self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = true
+                    local on_destroy = ExtraEffects[v.key].on_destroy(self, v.ability, i)
+                end
+            end
+
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].prevent_destruction and type(ExtraEffects[v.key].prevent_destruction) == "function" then
+                    local pd = ExtraEffects[v.key].prevent_destruction(self, v.ability, i)
+                    if pd and pd.block then
+                        for i,v in ipairs(self.ability.hsr_extra_effects) do
+                            if v.ability and v.ability.on_destroy_flagged then
+                                self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = false
+                            end
+                        end
+                        return
+                    end
+                end
+            end
+
+            for i,v in ipairs(self.ability.hsr_extra_effects) do
+                if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_remove and type(ExtraEffects[v.key].on_remove) == "function" and not v.ability.on_remove_flagged then
+                    v.ability.on_remove_flagged = true
+                    local on_remove = ExtraEffects[v.key].on_remove(self, v.ability, true, i)
+                end
+            end
+        else
+            for _,v in ipairs(G.jokers and G.jokers.cards or {}) do
+                if v.ability and v.ability.hsr_extra_effects then
+                    for ii,vv in ipairs(v.ability.hsr_extra_effects) do
+                        if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].prevent_other_destruction and type(ExtraEffects[vv.key].prevent_other_destruction) == "function" then
+                            local pod = ExtraEffects[vv.key].prevent_other_destruction(v, vv.ability, self, ii)
+                            if pod and pod.block then
+                                return
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    local ret = hookTo(self)
+    return ret
+end
+
+local hookTo = Card.start_dissolve
+function Card:start_dissolve(...)
+    if self.ability and self.ability.hsr_extra_effects and self.area == G.jokers then
+        for i,v in ipairs(self.ability.hsr_extra_effects) do
+            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_destroy and type(ExtraEffects[v.key].on_destroy) == "function" and not v.ability.on_destroy_flagged then
+                self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = true
+                local on_destroy = ExtraEffects[v.key].on_destroy(self, v.ability, i)
+            end
+        end
+
+        for i,v in ipairs(self.ability.hsr_extra_effects) do
+            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].prevent_destruction and type(ExtraEffects[v.key].prevent_destruction) == "function" then
+                local pd = ExtraEffects[v.key].prevent_destruction(self, v.ability, i)
+                if pd and pd.block then
+                    for i,v in ipairs(self.ability.hsr_extra_effects) do
+                        if v.ability and v.ability.on_destroy_flagged then
+                            self.ability.hsr_extra_effects[i].ability.on_destroy_flagged = false
+                        end
+                    end
+                    return
+                end
+            end
+        end
+
+        for i,v in ipairs(self.ability.hsr_extra_effects) do
+            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].on_remove and type(ExtraEffects[v.key].on_remove) == "function" and not v.ability.on_remove_flagged then
+                v.ability.on_remove_flagged = true
+                local on_remove = ExtraEffects[v.key].on_remove(self, v.ability, true, i)
+            end
+        end
+    else
+        for _,v in ipairs(G.jokers and G.jokers.cards or {}) do
+            if v.ability and v.ability.hsr_extra_effects then
+                for ii,vv in ipairs(v.ability.hsr_extra_effects) do
+                    if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].prevent_other_destruction and type(ExtraEffects[vv.key].prevent_other_destruction) == "function" then
+                        local pod = ExtraEffects[vv.key].prevent_other_destruction(v, vv.ability, self, ii)
+                        if pod and pod.block then
+                            return
+                        end
+                    end
+                end
+            end
+        end
+    end
+    local ret = hookTo(self,...)
+    return ret
+end
+
+local hookTo = SMODS.showman
+function SMODS.showman(card_key)
+    local ret = hookTo(card_key)
+    if not ret then
+        for _,v in ipairs(G.jokers and G.jokers.cards or {}) do
+            if v.ability and v.ability.hsr_extra_effects then
+                for ii,vv in ipairs(v.ability.hsr_extra_effects) do
+                    if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].check_showman and type(ExtraEffects[vv.key].check_showman) == "function" then
+                        local new_ret =  ExtraEffects[vv.key].check_showman(v, vv.ability, card_key, ii)
+                        if new_ret then return new_ret end
+                    end
+                end
+            end
+        end
+    end
+    return ret
+end
+
+local hookTo = Card.calculate_joker
+function Card:calculate_joker(context)
+    local o, t = hookTo(self, context)
+    local ret = o
+    local function table_count(t)
+        local i = 0
+        for _,_ in pairs(t) do
+            i = i + 1
+        end
+        return i
+    end
+    if ret and type(ret) == "table" and table_count(ret) >= 1 then
+        for _,v in ipairs(G.jokers.cards) do
+            if v.ability and v.ability.hsr_extra_effects then
+                for ii,vv in ipairs(v.ability.hsr_extra_effects) do
+                    if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].modify_calculate and type(ExtraEffects[vv.key].modify_calculate) == "function" then
+                        local ret2 = ExtraEffects[vv.key].modify_calculate(v, context, self, vv.ability, table.clone(ret), ii)
+                        if ret2 then
+                            ret = ret2
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    if self.ability and self.ability.hsr_extra_effects then
+        for i,v in ipairs(self.ability.hsr_extra_effects) do
+            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].calculate and type(ExtraEffects[v.key].calculate) == "function" then
+                local calc = ExtraEffects[v.key].calculate(self, context, v.ability, i)
+                if calc then
+                    ret = SMODS.merge_effects({ret or {}, calc or {}})
+                end
+                local function recursive_check(t)
+                    local shits_and_giggles = {"xmult", "mult", "xchips", "chips"}
+                    for i,vv in pairs(t) do
+                        if type(vv) == "number" then
+                            for _,vvv in ipairs(shits_and_giggles) do
+                                if Stacked["is"..vvv] and type(Stacked["is"..vvv]) == "function" and Stacked["is"..vvv](i) then
+                                    local calc1 = ExtraEffects[v.key].calculate(self, {[vvv.."_buff"] = true}, v.ability)
+                                    local calc2 = ExtraEffects[v.key].calculate(self, {joker_buff = true}, v.ability)
+                                    local new = t[i] * (calc1 and calc1.buff or 1) * (calc2 and calc2.buff or 1)
+                                    if t.message then
+                                        t.message = string.gsub(t.message, t[i], new)
+                                    end
+                                    t[i] = new
+                                end
+                            end
+                        elseif type(vv) == "table" and i == "extra" then
+                            recursive_check(vv)
+                        end
+                    end
+                end
+                if ret then
+                    recursive_check(ret)
+                end
+            end
+        end
+    end
+    if ret or t then return ret, t end
+end
+
+local hookTo = Card.set_ability
+function Card:set_ability(...)
+    local exist_element = self.ability and self.ability.hsr_extra_effects or {}
+    local ret = hookTo(self,...)
+
+    if self.config.center.set == "Joker" and not G.OVERLAY_MENU and G.STAGE == G.STAGES.RUN then
+        if #exist_element < (G.GAME.hsr_maximum_extra_effects or 2) then
+            for _ = 1, (G.GAME.hsr_maximum_extra_effects or 2) - #exist_element do
+                local odd = pseudorandom("hsr_feeling_lucky_today") <= 1/(G.GAME.hsr_extra_chance_rate or 5)
+                if odd then
+                    local pool = {}
+                    for i,v in pairs(ExtraEffects) do
+                        if v.in_pool and type(v.in_pool) == "function" then
+                            if v.in_pool(self) then
+                                pool[#pool+1] = i
+                            end
+                        else
+                            pool[#pool+1] = i
+                        end
+                    end
+                    if #pool > 0 then
+                        local random_effect = pseudorandom_element(pool, pseudoseed("hsr_im_feeling_super_lucky_today_:3"))
+                        if random_effect then
+                            apply_extra_effect(self, random_effect)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return ret
+end
+
+local hookTo = desc_from_rows
+function desc_from_rows(desc_nodes, empty, maxw)
+    local ret = hookTo(desc_nodes, empty, maxw)
+
+    if desc_nodes.hsr_box_minh then
+        ret = {}
+        local t = {}
+        for k, v in ipairs(desc_nodes) do
+            t[#t+1] = {n=G.UIT.R, config={align = "cm", maxw = maxw}, nodes=v}
+        end
+        ret = {n=G.UIT.R, config={align = "cm", colour = desc_nodes.background_colour or empty and G.C.CLEAR or G.C.UI.BACKGROUND_WHITE, r = 0.1, padding = 0.04, minw = 2, minh = desc_nodes.hsr_box_minh, emboss = not empty and 0.05 or nil, filler = true, main_box_flag = desc_nodes.main_box_flag and true or nil}, nodes={
+            {n=G.UIT.R, config={align = "cm", padding = 0.03}, nodes=t}
+        }}
+    end
+
+    return ret
+end
+
+local hookTo = Card.generate_UIBox_ability_table
+function Card:generate_UIBox_ability_table(...)
+    local ret = hookTo(self,...)
+    if self.ability and self.ability.hsr_extra_effects and #self.ability.hsr_extra_effects > 0 then
+        ret.multi_box = ret.multi_box or {}
+        local existing_mb = #ret.multi_box
+        local effect_amt = #self.ability.hsr_extra_effects
+        local increase = 0
+        ret.box_colours = ret.box_colours or {}
+        ret.main = ret.main or {}
+        ret.main.main_box_flag = true
+        if effect_amt <= Stacked.effect_per_page then
+            local desc = G.localization.ExtraEffects.joker_effect_separator
+            desc = table.clone(desc)
+            desc.text = {desc.text}
+            desc = SMODS.stylize_text(desc)
+            increase = increase + 1
+            for i, box in ipairs(desc.text_parsed) do
+                for j, line in ipairs(box) do
+                    local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                    ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                    ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                    ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
+                    ret.box_colours[existing_mb + increase + 1] = G.C.CLEAR
+                end
+            end
+
+            if not G.hsr_hide_effects then
+                for _,v in ipairs(self.ability.hsr_extra_effects) do
+                    local desc = v.description
+                    if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability) then
+                        local loc_key = ExtraEffects[v.key].loc_vars({}, self, v.ability).key
+                        if loc_key then
+                            if G.localization.ExtraEffects and G.localization.ExtraEffects[loc_key] then
+                                desc = G.localization.ExtraEffects[loc_key]
+                            elseif ExtraEffects[loc_key] and ExtraEffects[loc_key].description then
+                                desc = ExtraEffects[loc_key].description
+                            end
+                            desc = table.clone(desc)
+                            desc.text = {desc.text}
+                            desc = SMODS.stylize_text(desc)
+                        end
+                    end
+                    increase = increase + 1
+                    for i, box in ipairs(desc.text_parsed) do
+                        for j, line in ipairs(box) do
+                            local final_line = SMODS.localize_box(line, (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {})
+                            ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                            ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                            if not next(ret.info) then ret.box_colours[i] = G.C.UI.BACKGROUND_WHITE end
+                            --[[ret.box_colours[existing_mb + increase + 1] = lighten(G.C.FILTER, 0.7)]]
+                        end
+                    end
+                end
+            end
+
+            if not G.hsr_hide_effects then
+                local desc = G.localization.ExtraEffects.joker_effect_hide
+                desc = table.clone(desc)
+                desc.text = {desc.text}
+                desc = SMODS.stylize_text(desc)
+                increase = increase + 1
+                for i, box in ipairs(desc.text_parsed) do
+                    for j, line in ipairs(box) do
+                        local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                        ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                        ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                        ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
+                        ret.box_colours[existing_mb + increase + 1] = G.C.CLEAR
+                    end
+                end
+            else
+                local desc = G.localization.ExtraEffects.joker_effect_show
+                desc = table.clone(desc)
+                desc.text = {desc.text}
+                desc = SMODS.stylize_text(desc)
+                increase = increase + 1
+                for i, box in ipairs(desc.text_parsed) do
+                    for j, line in ipairs(box) do
+                        local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                        ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                        ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                        ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
+                        ret.box_colours[existing_mb + increase + 1] = G.C.CLEAR
+                    end
+                end
+            end
+        else
+            self.hsr_effect_page = self.hsr_effect_page or 1
+            local max_pages = math.ceil(effect_amt/Stacked.effect_per_page)
+            self.hsr_effect_page = math.min(self.hsr_effect_page, max_pages)
+            local current_page = self.hsr_effect_page
+
+            local desc = G.localization.ExtraEffects.joker_effect_separator
+            desc = table.clone(desc)
+            desc.text = {desc.text}
+            desc = SMODS.stylize_text(desc)
+            increase = increase + 1
+            for i, box in ipairs(desc.text_parsed) do
+                for j, line in ipairs(box) do
+                    local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                    ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                    ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                    ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
+                    ret.box_colours[existing_mb + increase + 1] = G.C.CLEAR
+                end
+            end
+
+            if not G.hsr_hide_effects then
+                for i = 1 + (Stacked.effect_per_page * (current_page - 1)), Stacked.effect_per_page + (Stacked.effect_per_page * (current_page - 1)) do
+                    if self.ability.hsr_extra_effects[i] then
+                        local v = self.ability.hsr_extra_effects[i]
+                        local desc = v.description
+                        if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability) then
+                            local loc_key = ExtraEffects[v.key].loc_vars({}, self, v.ability).key
+                            if loc_key then
+                                if G.localization.ExtraEffects and G.localization.ExtraEffects[loc_key] then
+                                    desc = G.localization.ExtraEffects[loc_key]
+                                elseif ExtraEffects[loc_key] and ExtraEffects[loc_key].description then
+                                    desc = ExtraEffects[loc_key].description
+                                end
+                                desc = table.clone(desc)
+                                desc = SMODS.stylize_text(desc)
+                            end
+                        end
+                        increase = increase + 1
+                        for i, box in ipairs(desc.text_parsed) do
+                            for j, line in ipairs(box) do
+                                local final_line = SMODS.localize_box(line, (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {})
+                                ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                                ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                                if not next(ret.info) then ret.box_colours[i] = G.C.UI.BACKGROUND_WHITE end
+                                --[[ret.box_colours[existing_mb + increase + 1] = lighten(G.C.FILTER, 0.7)]]
+                            end
+                        end
+                    end
+                end
+            end
+
+            if not G.hsr_expand_tooltip then
+                local desc = G.localization.ExtraEffects.joker_effect_expand
+                desc = table.clone(desc)
+                desc.text = {desc.text}
+                desc = SMODS.stylize_text(desc)
+                increase = increase + 1
+                for i, box in ipairs(desc.text_parsed) do
+                    for j, line in ipairs(box) do
+                        local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                        ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                        ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                        ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
+                        ret.box_colours[existing_mb + increase + 1] = G.C.CLEAR
+                    end
+                end
+            else
+                local desc = G.localization.ExtraEffects.joker_effect_pages
+                desc = table.clone(desc)
+                desc.text = {desc.text}
+                desc = SMODS.stylize_text(desc)
+                increase = increase + 1
+                for i, box in ipairs(desc.text_parsed) do
+                    for j, line in ipairs(box) do
+                        local final_line = SMODS.localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}})
+                        ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                        ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                        ret.box_colours[existing_mb + increase + 1] = G.C.CLEAR
+                    end
+                end
+                if not G.hsr_hide_effects then
+                    local desc = G.localization.ExtraEffects.joker_effect_hide
+                    desc = table.clone(desc)
+                    desc.text = {desc.text}
+                    desc = SMODS.stylize_text(desc)
+                    increase = increase + 1
+                    for i, box in ipairs(desc.text_parsed) do
+                        for j, line in ipairs(box) do
+                            local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                            ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                            ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                            ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
+                            ret.box_colours[existing_mb + increase + 1] = G.C.CLEAR
+                        end
+                    end
+                else
+                    local desc = G.localization.ExtraEffects.joker_effect_show
+                    desc = table.clone(desc)
+                    desc.text = {desc.text}
+                    desc = SMODS.stylize_text(desc)
+                    increase = increase + 1
+                    for i, box in ipairs(desc.text_parsed) do
+                        for j, line in ipairs(box) do
+                            local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                            ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
+                            ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                            ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
+                            ret.box_colours[existing_mb + increase + 1] = G.C.CLEAR
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return ret
+end

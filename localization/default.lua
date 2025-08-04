@@ -7,6 +7,7 @@ return{
                     "Increase a {C:attention}random{} Effect's {C:attention}Potency{}",
                     "on a {C:attention}random{} Joker by {C:attention}#1#%{}",
                     "{C:inactive}(Up to #2#%){}",
+                    "{C:inactive,s:0.65}(Art and Idea credit: factwixard)",
                 },
             },
         },
@@ -68,11 +69,31 @@ return{
                 "wheres your description bro"
             },
         },
+        joker_effect_expand = {
+            text = {
+                "{s:0.7,C:white}Hold [X] to see more info",
+            },
+        },
+        joker_effect_show = {
+            text = {
+                "{s:0.7,C:white}Press [LShift + X] to show effects",
+            },
+        },
+        joker_effect_hide = {
+            text = {
+                "{s:0.7,C:white}Press [LShift + X] to hide effects",
+            },
+        },
         joker_effect_pages = {
             text = {
                 "[Page #1#/#2#]",
                 "{s:0.7}Use {C:attention,s:0.7}scroll-wheel{s:0.7} to turn",
                 "{s:0.7}Effect pages",
+            },
+        },
+        joker_effect_separator = {
+            text = {
+                "{s:1.3,C:white,E:1}Extra Effects [Stacked]",
             },
         },
         score_suit_mult = {
@@ -215,6 +236,21 @@ return{
                 "Prevent {C:attention}Playing Cards{} from",
                 "being {C:red}destroyed{} #1# times",
                 "{C:inactive}(Uses left: #2#){}",
+            },
+        },
+        joker_buff17 = {
+            text = {
+                "{C:inactive}[Link]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
+                "If Joker to the {C:attention}#1#{} gives {C:mult}+Mult{},",
+                "gives {X:mult,C:white}XMult{} instead",
+                "{C:inactive,s:0.75}({C:mult,s:0.75}+1{C:inactive,s:0.75} Mult = {X:mult,C:white,s:0.75}X#2#{C:inactive,s:0.75} Mult)",
+            },
+        },
+        joker_buff18 = {
+            text = {
+                "{C:inactive}[Passive]{}",
+                "Joker can appear {C:attention}multiple",
+                "times",
             },
         },
     },
