@@ -5,6 +5,8 @@
 A mod that adds extra effects on top of your Jokers. By default, a Joker can have 2 maximum extra effects. 
 Sometimes, you will find a Joker with an extra effect, and its strength (Potency) is also determined randomly.
 
+It is also primarily an API mod for other creators to add their own effects.
+
 # Requirements
 Requires the latest version of **Steamodded** and **Lovely** to run smoothly.  
 Instructions can be found [here](https://github.com/Steamopollys/Steamodded/wiki/01.-Getting-started).
