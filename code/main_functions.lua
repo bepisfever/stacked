@@ -26,6 +26,7 @@ function apply_extra_effect(card, effect, bypass_cap)
         card.ability.hsr_extra_effects = card.ability.hsr_extra_effects or {}
         card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects+1] = {key = effect, description = desc}
         card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability = card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability or {}
+        new_effect.ability = new_effect.ability or {}
         for i,v in pairs(new_effect.ability or {}) do
             card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability[i] = v
         end
