@@ -22,15 +22,20 @@ function apply_extra_effect(card, effect, bypass_cap)
     if ExtraEffects[effect] and (bypass_cap or (#card.ability.hsr_extra_effects < (G.GAME.hsr_maximum_extra_effects or 2))) then
         local new_effect = table.clone(ExtraEffects[effect])
         local desc = (G.localization.ExtraEffects and G.localization.ExtraEffects[effect]) or new_effect.description or (G.localization.ExtraEffects and G.localization.ExtraEffects["joker_youforgotyourfuckingdescription"])
-        if desc then desc = table.clone(desc); desc.text = {desc.text}; desc = SMODS.stylize_text(desc) end
+        if desc then 
+            desc = table.clone(desc) 
+            desc.text = {desc.text}
+            desc.name = desc.name or ""
+            desc.name = Stacked.stylize_str(desc.name, {stylize = {E = 1}})
+            desc = Stacked.manual_parse(desc) 
+        end
         card.ability.hsr_extra_effects = card.ability.hsr_extra_effects or {}
         card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects+1] = {key = effect, description = desc}
         card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability = card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability or {}
         new_effect.ability = new_effect.ability or {}
-        for i,v in pairs(new_effect.ability or {}) do
+        for i,v in pairs(new_effect.ability) do
             card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability[i] = v
         end
-        card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability = card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability or {}
         if new_effect.randomize_values then
             new_effect.randomize_values(card, card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability, #card.ability.hsr_extra_effects)
         end
@@ -64,4 +69,23 @@ function Stacked.poll_potency(args)
     local potency_roll = Stacked.round(pseudorandom(args.seed, args.min, args.max) * (100/default_args_max), args.round)
 
     return math.min((G.GAME.hsr_min_potency and math.max(potency_roll, G.GAME.hsr_min_potency)) or potency_roll, ((args.unaff_cap and 100) or G.GAME.hsr_potency_cap or 100))
+end
+
+function Stacked.pool_effects(t, card, include)
+    local ret = {}
+    for i,v in pairs(ExtraEffects) do
+        if not include_all and v.type and Stacked.t_contains((type(v.type) == "table" and v.type) or {v.type}, t) and (not v.in_pool or (v.in_pool and (card and v:in_pool(card) or v:in_pool({})))) then
+            ret[#ret+1] = i
+        elseif include and v.type and (not v.in_pool or (v.in_pool and (card and v:in_pool(card) or v:in_pool({})))) then
+            local exist = false
+            for _,vv in ipairs((type(t) == "table" and t) or {t}) do
+                if Stacked.t_contains((type(v.type) == "table" and v.type) or {v.type},vv) then exist = true; break end
+            end
+            if exist then
+                ret[#ret+1] = i
+            end
+        end
+    end
+
+    return ret
 end

@@ -422,6 +422,82 @@ function desc_from_rows(desc_nodes, empty, maxw)
         }}
     end
 
+    if desc_nodes.is_effect_box then
+        ret = {}
+        local t = {}
+        for k, v in ipairs(desc_nodes) do
+            t[#t+1] = {n=G.UIT.R, config={align = "cm"}, nodes=v}
+        end
+
+        local name_nodes = {n=G.UIT.R, config={align = "tm", minh = 0.36, padding = 0.03}, nodes={{n=G.UIT.T, config={text = "No Name", scale = 0.32, colour = G.C.UI.TEXT_LIGHT}}}}
+
+        if desc_nodes.effect_name then
+            local n = {}
+            local n2 = {}
+            for j, line in ipairs(desc_nodes.effect_name) do
+                n[#n+1] = Stacked.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, desc_nodes.effect_name_vars, shadow = true})
+            end
+            for k, v in ipairs(n) do
+                n2[#n2+1] = {n=G.UIT.R, config= {align = "cm"}, nodes=v}
+            end
+            name_nodes = {n=G.UIT.R, config = {align = "cm", minh = 0.36}, nodes = n2}
+        end
+
+        local type_nodes = {}
+
+        if desc_nodes.effect_types then
+            local n = {}
+            local n2 = {}
+            local parsed = {}
+            local vars = {}
+            for _,v in ipairs(desc_nodes.effect_types) do
+                if #parsed <= 0 then
+                    parsed = Stacked.manual_parse(G.localization.ExtraEffectTypes[v] or "TYPE LOC FAILED")
+                else
+                    for _,vv in ipairs(Stacked.manual_parse("/")[1]) do
+                        parsed[1][#parsed[1]+1] = vv
+                    end
+                    for _,vv in ipairs(Stacked.manual_parse(G.localization.ExtraEffectTypes[v] or "TYPE LOC FAILED")[1]) do
+                        parsed[1][#parsed[1]+1] = vv
+                    end
+                end
+            end
+            if desc_nodes.potency then
+                if #parsed <= 0 then
+                    parsed = Stacked.manual_parse(G.localization.ExtraEffectTypes["potency"] or "TYPE LOC FAILED")
+                else
+                    for _,vv in ipairs(Stacked.manual_parse("/")[1]) do
+                        parsed[1][#parsed[1]+1] = vv
+                    end
+                    for _,vv in ipairs(Stacked.manual_parse(G.localization.ExtraEffectTypes["potency"] or "TYPE LOC FAILED")[1]) do
+                        parsed[1][#parsed[1]+1] = vv
+                    end
+                end
+                vars[#vars+1] = desc_nodes.potency
+                vars.colours = vars.colours or {}
+                vars.colours[#vars.colours+1] = lighten({1 - (1 * desc_nodes.potency/100), 1 * desc_nodes.potency/100, 0, 1}, 0.5)
+            end
+            --test: eval G.jokers.cards[1]:apply_extra_effect("score_suit_mult")
+
+            for j, line in ipairs(parsed) do
+                n[#n+1] = Stacked.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, shadow = true, fixed_scale = 0.7, vars = vars})
+            end
+
+            for k,v in ipairs(n) do
+                n2[#n2+1] = {n = G.UIT.R, config = {align = "cm"}, nodes = v}
+            end
+
+            type_nodes = {n=G.UIT.R, config = {align = "cm", minh = 0.15}, nodes = n2}
+        end
+
+        ret = {n=G.UIT.R, config={align = "cm", colour = lighten(G.C.GREY, 0.15), r = 0.1}, nodes={
+            name_nodes,
+            type_nodes,
+            {n=G.UIT.R, config = {align = "cm", minh = 0.05}},
+            {n=G.UIT.R, config={align = "cm", minw = 2, minh = 0.4, r = 0.1, padding = 0.05, colour = G.C.UI.BACKGROUND_WHITE, id = "stacked_effect_box"..desc_nodes.box_num}, nodes={{n=G.UIT.R, config={align = "cm", padding = 0.03}, nodes = t}}}
+        }}
+    end
+
     return ret
 end
 
@@ -433,6 +509,7 @@ function Card:generate_UIBox_ability_table(...)
         local existing_mb = #ret.multi_box
         local effect_amt = #self.ability.hsr_extra_effects
         local increase = 0
+        local type_shi = 0
         ret.box_colours = ret.box_colours or {}
         ret.main = ret.main or {}
         ret.main.main_box_flag = true
@@ -440,11 +517,11 @@ function Card:generate_UIBox_ability_table(...)
             local desc = G.localization.ExtraEffects.joker_effect_separator
             desc = table.clone(desc)
             desc.text = {desc.text}
-            desc = SMODS.stylize_text(desc)
+            desc = Stacked.manual_parse(desc)
             increase = increase + 1
             for i, box in ipairs(desc.text_parsed) do
                 for j, line in ipairs(box) do
-                    local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                    local final_line = Stacked.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
                     ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                     ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
                     ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
@@ -465,15 +542,24 @@ function Card:generate_UIBox_ability_table(...)
                             end
                             desc = table.clone(desc)
                             desc.text = {desc.text}
-                            desc = SMODS.stylize_text(desc)
+                            desc = Stacked.manual_parse(desc)
                         end
                     end
+                    type_shi = type_shi + 1
                     increase = increase + 1
                     for i, box in ipairs(desc.text_parsed) do
                         for j, line in ipairs(box) do
                             local final_line = SMODS.localize_box(line, (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {})
                             ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                             ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                            ret.multi_box[existing_mb + increase]["is_effect_box"] = true
+                            ret.multi_box[existing_mb + increase]["effect_name"] = desc.name_parsed or {}
+                            ret.multi_box[existing_mb + increase]["box_num"] = type_shi
+                            ret.multi_box[existing_mb + increase]["effect_types"] = (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].type and ((type(ExtraEffects[v.key].type) == "table" and ExtraEffects[v.key].type) or {ExtraEffects[v.key].type}))
+                            ret.multi_box[existing_mb + increase]["effect_name_vars"] = (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {}
+                            if v.key and ExtraEffects[v.key] and not ExtraEffects[v.key].no_potency then
+                                ret.multi_box[existing_mb + increase]["potency"] = v.ability.perfect
+                            end
                             if not next(ret.info) then ret.box_colours[i] = G.C.UI.BACKGROUND_WHITE end
                             --[[ret.box_colours[existing_mb + increase + 1] = lighten(G.C.FILTER, 0.7)]]
                         end
@@ -485,11 +571,11 @@ function Card:generate_UIBox_ability_table(...)
                 local desc = G.localization.ExtraEffects.joker_effect_hide
                 desc = table.clone(desc)
                 desc.text = {desc.text}
-                desc = SMODS.stylize_text(desc)
+                desc = Stacked.manual_parse(desc)
                 increase = increase + 1
                 for i, box in ipairs(desc.text_parsed) do
                     for j, line in ipairs(box) do
-                        local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                        local final_line = Stacked.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
                         ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                         ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
                         ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
@@ -500,11 +586,11 @@ function Card:generate_UIBox_ability_table(...)
                 local desc = G.localization.ExtraEffects.joker_effect_show
                 desc = table.clone(desc)
                 desc.text = {desc.text}
-                desc = SMODS.stylize_text(desc)
+                desc = Stacked.manual_parse(desc)
                 increase = increase + 1
                 for i, box in ipairs(desc.text_parsed) do
                     for j, line in ipairs(box) do
-                        local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                        local final_line = Stacked.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
                         ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                         ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
                         ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
@@ -521,11 +607,11 @@ function Card:generate_UIBox_ability_table(...)
             local desc = G.localization.ExtraEffects.joker_effect_separator
             desc = table.clone(desc)
             desc.text = {desc.text}
-            desc = SMODS.stylize_text(desc)
+            desc = Stacked.manual_parse(desc)
             increase = increase + 1
             for i, box in ipairs(desc.text_parsed) do
                 for j, line in ipairs(box) do
-                    local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                    local final_line = Stacked.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
                     ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                     ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
                     ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
@@ -547,15 +633,24 @@ function Card:generate_UIBox_ability_table(...)
                                     desc = ExtraEffects[loc_key].description
                                 end
                                 desc = table.clone(desc)
-                                desc = SMODS.stylize_text(desc)
+                                desc = Stacked.manual_parse(desc)
                             end
                         end
                         increase = increase + 1
+                        type_shi = type_shi + 1
                         for i, box in ipairs(desc.text_parsed) do
                             for j, line in ipairs(box) do
                                 local final_line = SMODS.localize_box(line, (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {})
                                 ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                                 ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
+                                ret.multi_box[existing_mb + increase]["is_effect_box"] = true
+                                ret.multi_box[existing_mb + increase]["effect_name"] = desc.name_parsed or {}
+                                ret.multi_box[existing_mb + increase]["box_num"] = type_shi
+                                ret.multi_box[existing_mb + increase]["effect_types"] = (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].type and ((type(ExtraEffects[v.key].type) == "table" and ExtraEffects[v.key].type) or {ExtraEffects[v.key].type}))
+                                ret.multi_box[existing_mb + increase]["effect_name_vars"] = (v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and ExtraEffects[v.key].loc_vars({}, self, v.ability)) or {}
+                                if v.key and ExtraEffects[v.key] and not ExtraEffects[v.key].no_potency then
+                                    ret.multi_box[existing_mb + increase]["potency"] = v.ability.perfect
+                                end
                                 if not next(ret.info) then ret.box_colours[i] = G.C.UI.BACKGROUND_WHITE end
                                 --[[ret.box_colours[existing_mb + increase + 1] = lighten(G.C.FILTER, 0.7)]]
                             end
@@ -568,11 +663,11 @@ function Card:generate_UIBox_ability_table(...)
                 local desc = G.localization.ExtraEffects.joker_effect_expand
                 desc = table.clone(desc)
                 desc.text = {desc.text}
-                desc = SMODS.stylize_text(desc)
+                desc = Stacked.manual_parse(desc)
                 increase = increase + 1
                 for i, box in ipairs(desc.text_parsed) do
                     for j, line in ipairs(box) do
-                        local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                        local final_line = Stacked.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
                         ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                         ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
                         ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
@@ -583,7 +678,7 @@ function Card:generate_UIBox_ability_table(...)
                 local desc = G.localization.ExtraEffects.joker_effect_pages
                 desc = table.clone(desc)
                 desc.text = {desc.text}
-                desc = SMODS.stylize_text(desc)
+                desc = Stacked.manual_parse(desc)
                 increase = increase + 1
                 for i, box in ipairs(desc.text_parsed) do
                     for j, line in ipairs(box) do
@@ -597,11 +692,11 @@ function Card:generate_UIBox_ability_table(...)
                     local desc = G.localization.ExtraEffects.joker_effect_hide
                     desc = table.clone(desc)
                     desc.text = {desc.text}
-                    desc = SMODS.stylize_text(desc)
+                    desc = Stacked.manual_parse(desc)
                     increase = increase + 1
                     for i, box in ipairs(desc.text_parsed) do
                         for j, line in ipairs(box) do
-                            local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                            local final_line = Stacked.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
                             ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                             ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
                             ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
@@ -612,11 +707,11 @@ function Card:generate_UIBox_ability_table(...)
                     local desc = G.localization.ExtraEffects.joker_effect_show
                     desc = table.clone(desc)
                     desc.text = {desc.text}
-                    desc = SMODS.stylize_text(desc)
+                    desc = Stacked.manual_parse(desc)
                     increase = increase + 1
                     for i, box in ipairs(desc.text_parsed) do
                         for j, line in ipairs(box) do
-                            local final_line = SMODS.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
+                            local final_line = Stacked.stacked_localize_box(line, {text_colour = G.C.UI.TEXT_LIGHT, vars = {current_page, max_pages}, shadow = true})
                             ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
                             ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
                             ret.multi_box[existing_mb + increase]["hsr_box_minh"] = 0
@@ -627,5 +722,25 @@ function Card:generate_UIBox_ability_table(...)
             end
         end
     end
+    return ret
+end
+
+local reloaded_stakes = {}
+local skip_stake = {"stake_white", "stake_green", "stake_red"}
+local hookTo = init_localization
+function init_localization(...)
+    local ret = hookTo(...)
+    for i,v in pairs(G.localization.descriptions.Stake) do
+        if not Stacked.t_contains(skip_stake,i) and not reloaded_stakes[i] then
+            reloaded_stakes[i] = true
+            local clone = table.clone(G.localization.descriptions.Stake[i])
+            clone.name_parsed = nil
+            clone.text_parsed = nil
+            clone.text = clone.text or {}
+            table.insert(clone.text, 1, Stacked.stylize_str("({C:red}Cursed{} extra effects are {C:attention}enabled{})", {stylize = {C = "inactive"}}))
+            G.localization.descriptions.Stake[i] = Stacked.manual_parse(clone)
+        end
+    end
+
     return ret
 end

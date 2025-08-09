@@ -89,7 +89,166 @@ function table.clone(t) --Clones a table.
     return ret
 end
 
-function SMODS.stacked_localize_box(lines, args) 
+function Stacked.t_contains(t,check)
+    if type(check) == "table" then
+        local checks = {}
+
+        for i,v in pairs(t) do
+            checks[v] = true
+        end
+
+        for _,v in ipairs(check) do
+            if not checks[v] then return false end
+        end
+
+        return true
+    else
+        for i,v in pairs(t) do
+            if v == check then
+                return true
+            end
+        end
+        return false
+    end
+end
+
+function plcsplit(s, separator)
+    local plc_str = ""
+    local s_pos, e_pos = string.find(s, separator)
+    for i = 1,#tostring(s) do
+        local chr = string.sub(s,i,i)
+        if i >= s_pos then
+            local new_s1 = string.sub(s, e_pos+1, #s)
+            local new_s = new_s1
+            return plc_str, new_s
+        else
+            plc_str = plc_str..chr 
+        end
+    end
+end
+
+function string.split(s, separator) --Return a table of strings split by separator.
+    local _,sep_amount = string.gsub(s, separator, "")
+    local ret = {}
+    
+    if sep_amount >= 1 then
+        for _ = 1,sep_amount do
+            local a,b = plcsplit(s, separator)
+            --[[if string.gsub(a, " ", "") ~= "" then
+                ret[#ret+1] = a
+            end]]
+            ret[#ret+1] = a
+            s = b
+        end
+    end
+
+    ret[#ret+1] = s
+    return ret
+end
+
+function Stacked.stylize_str(text, args) --Making stylizing text that much more simpler.
+    local is_stylizing = false
+    local bracket_start = 0
+    local bracket_end = 0
+    
+    for i = 1, string.len(text) do
+        local chr = string.sub(text, i, i)
+        if chr == "{" or (i == string.len(text) and is_stylizing) then
+            is_stylizing = not is_stylizing
+            if is_sttlizing then
+                bracket_start = i
+                bracket_end = i
+            else
+                if bracket_end ~= 0 then
+                    if i == string.len(text) then bracket_end = bracket_end + 1 end
+                    if chr == "{" and string.sub(text, i+1, i+1) == "}" then bracket_end = bracket_end + 2 end
+                    local res = string.sub(text, bracket_start, bracket_end)
+                    local find = nil
+                    
+                    for ii = 1, string.len(res) do
+                        local chr2 = string.sub(res,ii,ii)
+                        if chr2 == "}" then
+                            find = string.sub(res,1,ii)
+                            break
+                        end
+                    end
+                    
+                    if not find then
+                        local other_res = string.sub(text, bracket_end+1, string.len(text))
+                        return Stacked.stylize_str(res, args)..Stacked.stylize_str(other_res,args)
+                    end
+                    
+                    if not args.override then
+                        local splits = string.split(string.gsub(string.gsub(find, "{", ""), "}", ""), ",")
+                        local last_splits = {}
+                        for _,v in ipairs(splits) do
+                            for ii = 1, string.len(v) do
+                                if string.sub(v,ii,ii) == ":" then
+                                    last_splits[string.sub(v,1,ii-1)] = true
+                                    --table.insert(last_splits, string.sub(v,1,ii-1))
+                                end
+                            end
+                        end
+                        
+                        local add = "{"
+                        for ii,v in pairs(args.stylize) do
+                            if --[[not Stacked.t_contains(last_splits, ii)]] not last_splits[ii] then
+                                add = add..ii..":"..v..","
+                            end
+                        end
+                        for _,v in ipairs(splits) do
+                            add = add..v..","
+                        end
+                        add = string.sub(add,1,string.len(add)-1)
+                        add = add.."}"
+                        
+                        local final_res = add..string.gsub(res, find, "")
+                        
+                        return final_res..Stacked.stylize_str(string.sub(text, bracket_end+1, string.len(text)), args) 
+                    else
+                        local splits = string.split(string.gsub(string.gsub(find, "{", ""), "}", ""), ",")
+                        local last_splits = {}
+                        for _,v in ipairs(splits) do
+                            for ii = 1, string.len(v) do
+                                if string.sub(v,ii,ii) == ":" then
+                                    last_splits[string.sub(v,1,ii-1)] = v
+                                    --table.insert(last_splits, string.sub(v,1,ii-1))
+                                end
+                            end
+                        end
+                        
+                        local add = "{"
+                        for ii,v in pairs(args.stylize) do
+                            if last_splits[ii] then last_splits[ii] = nil end
+                            add = add..ii..":"..v..","
+                        end
+                        for _,v in pairs(last_splits) do
+                            add = add..v..","
+                        end
+                        add = string.sub(add,1,string.len(add)-1)
+                        add = add.."}"
+                        
+                        local final_res = add..string.gsub(res, find, "")
+                        
+                        return final_res..Stacked.stylize_str(string.sub(text, bracket_end+1, string.len(text)), args) 
+                    end
+                end
+            end
+        end
+        bracket_end = bracket_end + 1
+    end
+    
+    local add = "{"
+    for i,v in pairs(args.stylize) do
+        add = add..i..":"..v..","
+    end
+    add = string.sub(add,1,string.len(add)-1)
+    add = add.."}"
+    
+    return text ~= "" and add..text or text
+end
+
+function Stacked.stacked_localize_box(lines, args) 
     local final_line = {}
     for _, part in ipairs(lines) do
         local assembled_string = ''
@@ -107,7 +266,7 @@ function SMODS.stacked_localize_box(lines, args)
             end
             final_line[#final_line+1] = {n=G.UIT.C, config={minh = 0, align = "m", colour = part.control.B and args.vars.colours[tonumber(part.control.B)] or part.control.X and loc_colour(part.control.X) or nil, r = 0.05, padding = 0, res = 0.15}, nodes={}}
             final_line[#final_line].nodes[1] = {n=G.UIT.O, config={ minh = 0, padding = 0,
-            object = DynaText({string = {assembled_string}, colours = {part.control.V and args.vars.colours[tonumber(part.control.V)] or loc_colour(part.control.C or nil)},
+            object = DynaText({string = {assembled_string}, colours = {part.control.V and args.vars.colours[tonumber(part.control.V)] or loc_colour(part.control.C or nil, G.C.UI.TEXT_LIGHT) or args.text_colour},
                 float = _float,
                 silent = _silent,
                 pop_in = _pop_in,
@@ -124,7 +283,7 @@ function SMODS.stacked_localize_box(lines, args)
                 padding = 0,
                 text = assembled_string,
                 shadow = args.shadow,
-                colour = part.control.V and args.vars.colours[tonumber(part.control.V)] or loc_colour(part.control.C or nil),
+                colour = part.control.V and args.vars.colours[tonumber(part.control.V)] or loc_colour(part.control.C or nil, G.C.UI.TEXT_LIGHT) or args.text_colour,
                 font = SMODS.Fonts[part.control.f] or (tonumber(part.control.f) and G.FONTS[tonumber(part.control.f)]),
                 scale = 0.32*(part.control.s and tonumber(part.control.s) or args.scale  or 1)*desc_scale*(args.fixed_scale or 1)}},
             }}
@@ -143,13 +302,21 @@ function SMODS.stacked_localize_box(lines, args)
     return final_line
 end
 
-SMODS.stylize_text = function(text, args)
+--eval Stacked.manual_parse("text", {loc_dir = {"descriptions", "Joker"}, key = "test"})
+Stacked.manual_parse = function(text, args)
     if not text then return end
     if type(text) ~= "table" then text = {text} end
     local args = args or {}
-    local loc_dir1 = args.loc_dir1 or "misc"
-    local loc_dir2 = args.loc_dir2 or "v_text_parsed"
-    local key = args.key or "SMODS_stylize_text"
+    local dir = G.localization
+    if args.loc_dir then
+        for _,v in ipairs(args.loc_dir) do
+            dir[v] = dir[v] or {}
+            dir = dir[v]
+        end
+    else
+        dir = G.localization.misc.v_text_parsed
+    end
+    local key = args.loc_key or "SMODS_stylize_text"
     local function deep_find(t, index)
         if type(index) ~= "table" then index = {index} end
         for _,idv_index in ipairs(index) do
@@ -164,13 +331,13 @@ SMODS.stylize_text = function(text, args)
         return false
     end
     if deep_find(text, "control") then 
-        if not args.no_loc_save then G.localization[loc_dir1][loc_dir2] = text end 
+        if not args.no_loc_save then dir = text end 
         return text 
     end
 
     local a = {"text", "name", "unlock"}
     if not args.no_loc_save then
-        local loc = G.localization[loc_dir1][loc_dir2]
+        local loc = dir
         loc[key] = {}
         if deep_find(text, a) then
             for _,v in ipairs(a) do
@@ -205,6 +372,7 @@ SMODS.stylize_text = function(text, args)
                 loc[key][i] = loc_parse_string(v)
             end
         end
+
         return loc[key]
     else
         local loc = {}
@@ -246,7 +414,7 @@ SMODS.stylize_text = function(text, args)
     end
 end
 
-function SMODS.localize(args, misc_cat)
+function Stacked.localize(args, misc_cat)
     if args and not (type(args) == 'table') then
         if misc_cat and G.localization.misc[misc_cat] then return G.localization.misc[misc_cat][args] or 'ERROR' end
         return G.localization.misc.dictionary[args] or 'ERROR'
@@ -255,7 +423,7 @@ function SMODS.localize(args, misc_cat)
     args.nodes = args.nodes or {}
 
     local loc_target = args.loc_target or nil
-    if args.stylize then loc_target = SMODS.stylize_text(loc_target) end
+    if args.stylize then loc_target = Stacked.manual_parse(loc_target) end
     local ret_string = nil
     if args.type == 'other' then
         if not loc_target then loc_target = G.localization.descriptions.Other[args.key] end

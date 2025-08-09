@@ -1,7 +1,7 @@
----@diagnostic disable: unused-function
 SMODS.current_mod.optional_features = {retrigger_joker = true}
 Stacked = SMODS.current_mod
 Stacked.effect_per_page = 2
+Stacked.stakes_without_curses = {1,2,3}
 
 local allFolders = {
     "none", "code"

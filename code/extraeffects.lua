@@ -1,9 +1,10 @@
 ExtraEffects = {
     score_suit_mult = {
         key = "score_suit_mult", 
+        type = "passive",
         ability = {mult = 5, min_possible = 5, max_possible = 20, suit = "Spades"},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.mult, ability_table.suit, Stacked.round(ability_table.perfect, 1), colours = {G.C.SUITS[ability_table.suit], {1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.mult, ability_table.suit, colours = {G.C.SUITS[ability_table.suit]}}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssm_randomize"))
@@ -25,6 +26,7 @@ ExtraEffects = {
     },
     score_suit_chips = {
         key = "score_suit_chips", 
+        type = "attack",
         ability = {chips = 5, min_possible = 25, max_possible = 100, suit = "Spades"},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.chips, ability_table.suit, Stacked.round(ability_table.perfect, 1), colours = {G.C.SUITS[ability_table.suit], {1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -49,6 +51,7 @@ ExtraEffects = {
     },
     score_suit_xmult = {
         key = "score_suit_xmult", 
+        type = "attack",
         ability = {xmult = 1, min_possible = 1.1, max_possible = 1.5, suit = "Spades"},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.xmult, ability_table.suit, Stacked.round(ability_table.perfect, 1), colours = {G.C.SUITS[ability_table.suit], {1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -73,6 +76,7 @@ ExtraEffects = {
     },
     joker_buff1 = {
         key = "joker_buff1", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 1.5},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -94,6 +98,7 @@ ExtraEffects = {
     },
     joker_buff2 = {
         key = "joker_buff2", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -124,6 +129,7 @@ ExtraEffects = {
     },
     joker_buff3 = {
         key = "joker_buff3", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -154,6 +160,7 @@ ExtraEffects = {
     },
     joker_buff4 = {
         key = "joker_buff4", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2, remaining = 1},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -190,6 +197,7 @@ ExtraEffects = {
     },
     joker_buff5 = {
         key = "joker_buff5", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 1.5},
         in_pool = function(card)
             return false
@@ -212,6 +220,7 @@ ExtraEffects = {
     },
     joker_buff6 = {
         key = "joker_buff6", 
+        type = "passive",
         ability = {buff = 1, min_possible = 5, max_possible = 20},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -255,6 +264,7 @@ ExtraEffects = {
     },
     joker_buff7 = {
         key = "joker_buff7", 
+        type = "passive",
         ability = {buff = 1, min_possible = 5, max_possible = 10},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -290,6 +300,7 @@ ExtraEffects = {
     },
     joker_buff8 = {
         key = "joker_buff8", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2, remaining = 1},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -341,6 +352,7 @@ ExtraEffects = {
     },
     joker_buff9 = {
         key = "joker_buff9", 
+        type = "passive",
         ability = {buff = "Tarot"},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -360,6 +372,7 @@ ExtraEffects = {
     },
     joker_buff10 = {
         key = "joker_buff10", 
+        type = "passive",
         ability = {mult = 0, buff = 1, min_possible = 10, max_possible = 50},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.mult, ability_table.buff * 100, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -387,6 +400,7 @@ ExtraEffects = {
     },
     joker_buff11 = {
         key = "joker_buff11", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 5},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -420,6 +434,7 @@ ExtraEffects = {
     },
     joker_buff12 = {
         key = "joker_buff12", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -449,6 +464,7 @@ ExtraEffects = {
     },
     joker_buff13 = {
         key = "joker_buff13", 
+        type = "passive",
         ability = {buff = 1, min_possible = 0, max_possible = 4},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -470,6 +486,7 @@ ExtraEffects = {
     },
     joker_buff14 = {
         key = "joker_buff14", 
+        type = "passive",
         ability = {direction = "left", buff = 1, min_possible = 0.2, max_possible = 0.5},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {localize("joker_buff14_direction_"..ability_table.direction), ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -498,6 +515,7 @@ ExtraEffects = {
     },
     joker_buff15 = {
         key = "joker_buff15", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 5, x = 1},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.x, ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -529,6 +547,7 @@ ExtraEffects = {
     },
     joker_buff16 = {
         key = "joker_buff16", 
+        type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 15, remaining = 1},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -565,6 +584,7 @@ ExtraEffects = {
     },
     joker_buff17 = {
         key = "joker_buff17", 
+        type = "passive",
         ability = {direction = "left", buff = 1, min_possible = 0.01, max_possible = 0.05},
         loc_vars = function(info_queue, card, ability_table)
             return {vars = {localize("joker_buff14_direction_"..ability_table.direction), Stacked.round(ability_table.buff,3), Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
@@ -582,11 +602,11 @@ ExtraEffects = {
                 for i,v in pairs(t) do
                     if type(v) == "table" and i == "extra" then
                         mult_to_xmult(v)
-                    elseif i == "mult" then
-                        t["xmult"] = 1 + (math.floor(v) * ability_table.buff)
+                    elseif i == "mult" or i == "h_mult" then
+                        t["xmult"] = (t["xmult"] or 1) + (math.floor(v) * ability_table.buff)
                         t[i] = nil
                     elseif i == "mult_mod" then
-                        t["xmult"] = 1 + (math.floor(v) * ability_table.buff)
+                        t["xmult"] = (t["xmult"] or 1) + (math.floor(v) * ability_table.buff)
                         if t["message"] and type(t["message"]) == "string" and string.find(t["message"], "+"..v) then
                             t["message"] = nil
                         end
@@ -610,10 +630,8 @@ ExtraEffects = {
     },
     joker_buff18 = {
         key = "joker_buff18", 
+        type = "passive",
         no_potency = true,
-        randomize_values = function(card, ability_table)
-            ability_table.perfect = Stacked.poll_potency{seed = "jb18_potency_roll", min = 1, max = 1}
-        end,
         check_showman = function(card, ability_table, card_key, abiltiy_index)
             if card_key == card.config.center.key then
                 return true

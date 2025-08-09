@@ -62,8 +62,14 @@ return{
             },
         },
     },
+    ExtraEffectTypes = {
+        passive = "Passive",
+        attack = "Attack",
+        potency = "Potency [{V:1}#1#{}%]",
+    },
     ExtraEffects = {
         joker_youforgotyourfuckingdescription = {
+            name = "you forgot {C:attention}loc_txt{}/{C:attention}localization{}",
             text = {
                 "{C:inactive}[Passive]{} {C:inactive}({}{C:green}69%{}{C:inactive}){}",
                 "wheres your description bro"
@@ -97,93 +103,93 @@ return{
             },
         },
         score_suit_mult = {
+            name = "Attack on Mult",
             text = {
-                "{C:inactive}[Attack]{} {C:inactive}({}{V:2}#3#%{}{C:inactive}){}",
                 "Scored {V:1}#2#{} cards",
                 "give {C:mult}+#1#{} Mult",
             },
         },
         score_suit_chips = {
+            name = "Attack on Chips",
             text = {
-                "{C:inactive}[Attack]{} {C:inactive}({}{V:2}#3#%{}{C:inactive}){}",
                 "Scored {V:1}#2#{} cards",
                 "give {C:chips}+#1#{} Chips",
             },
         },
         score_suit_xmult = {
+            name = "Attack on XMult",
             text = {
-                "{C:inactive}[Attack]{} {C:inactive}({}{V:2}#3#%{}{C:inactive}){}",
                 "Scored {V:1}#2#{} cards",
                 "give {X:mult,C:white}X#1#{} Mult",
             },
         },
         joker_buff1 = {
+            name = "Amplify",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "Joker gives {X:dark_edition,C:white}X#1#{} more",
                 "{C:chips}Chips{}/{C:mult}Mult{}",
             },
         },
         joker_buff2 = {
+            name = "Helping Hands",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "Joker gives {C:blue}+#1#{} Hands",
             },
         },
         joker_buff3 = {
+            name = "More Discards",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "Joker gives {C:red}+#1#{} Discards",
             },
         },
         joker_buff4 = {
+            name = "*But it refused.",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
                 "Joker is {C:red}immune{} to {C:red}destruction{}",
                 "#1# times",
                 "{C:inactive}(Uses left: #2#){}",
             },
         },
         joker_buff5 = {
+            name = "Faster Learner",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "Joker's {C:attention}scalings{} are {C:attention}multiplied",
                 "by {X:attention,C:white}X#1#",
             },
         },
         joker_buff6 = {
+            name = "Lenient Blinds",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "{C:attention}Blind size{} is decreased",
                 "by {C:attention}#1#%{}",
             },
         },
         joker_buff7 = {
+            name = "Fast Pacing",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "{C:attention}Retrigger{} this Joker {C:attention}once{}",
                 "for {C:attention}#1#{} rounds",
             },
         },
         joker_buff8 = {
+            name = "Recycling",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
                 "When this Joker would get {C:red}destroyed{},",
                 "{C:attention}reset{} its {C:attention}values{} instead",
                 "{C:inactive}(Uses left: #2#){}",
             },
         },
         joker_buff9 = {
+            name = "A Ritual's Sacrifice",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "When this Joker is {C:attention}destroyed{},",
                 "create a {C:attention}#1#{} card",
                 "{C:inactive}(Must have room)",
             },
         },
         joker_buff10 = {
+            name = "Chips Absorption",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
                 "{C:mult}+#1#{} Mult",
                 "Convert {C:chips}#2#%{} Chips of {C:attention}scored{}",
                 "cards to {C:mult}+Mult{}, decreases by {C:attention}half{}",
@@ -191,38 +197,38 @@ return{
             },
         },
         joker_buff11 = {
+            name = "Gradual Growth",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "Increase a {C:attention}random{} Effect's {C:attention}Potency{}",
                 "of this Joker by {C:attention}#1#%{} {C:inactive}(except itself){}",
                 "at end of round",
             },
         },
         joker_buff12 = {
+            name = "A Friend's Sacrifice",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "When {C:red}destroyed{}, give a {C:attention}random{}",
                 "owned Joker a {C:attention}random{} Effect",
                 "{C:attention}#1#{} times",
             },
         },
         joker_buff13 = {
+            name = "Better Odds",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#2#%{}{C:inactive}){}",
                 "If Joker has {C:green}probabilities{},",
                 "increase {C:green}numerator{} by {C:green}#1#{}",
             }
         },
         joker_buff14 = {
+            name = "Blueprint...?",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
                 "Copy ability of Joker to the {C:attention}#1#{},",
                 "{X:dark_edition,C:white}X#2#{} {C:mult}Mult{}/{C:chips}Chips{} given",
             },
         },
         joker_buff15 = {
+            name = "Scaling Buddies",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
                 "{X:dark_edition,C:white}X#1#{} {C:mult}Mult{}/{C:chips}Chips{} given",
                 "Increase by {X:dark_edition,C:white}X0.02{} whenever",
                 "a Joker's {C:attention}value{} is increased by",
@@ -231,24 +237,24 @@ return{
             },
         },
         joker_buff16 = {
+            name = "Protector",
             text = {
-                "{C:inactive}[Passive]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
                 "Prevent {C:attention}Playing Cards{} from",
                 "being {C:red}destroyed{} #1# times",
                 "{C:inactive}(Uses left: #2#){}",
             },
         },
         joker_buff17 = {
+            name = "Converter",
             text = {
-                "{C:inactive}[Link]{} {C:inactive}({}{V:1}#3#%{}{C:inactive}){}",
                 "If Joker to the {C:attention}#1#{} gives {C:mult}+Mult{},",
                 "gives {X:mult,C:white}XMult{} instead",
                 "{C:inactive,s:0.75}({C:mult,s:0.75}+1{C:inactive,s:0.75} Mult = {X:mult,C:white,s:0.75}X#2#{C:inactive,s:0.75} Mult)",
             },
         },
         joker_buff18 = {
+            name = "Duplication",
             text = {
-                "{C:inactive}[Passive]{}",
                 "Joker can appear {C:attention}multiple",
                 "times",
             },
