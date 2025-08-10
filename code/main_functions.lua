@@ -89,3 +89,9 @@ function Stacked.pool_effects(t, card, include)
 
     return ret
 end
+
+function Stacked.extra_effect(args)
+    if args and args.key then
+        ExtraEffects[args.key] = args
+    end
+end
