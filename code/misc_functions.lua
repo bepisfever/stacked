@@ -266,7 +266,7 @@ function Stacked.stacked_localize_box(lines, args)
             end
             final_line[#final_line+1] = {n=G.UIT.C, config={minh = 0, align = "m", colour = part.control.B and args.vars.colours[tonumber(part.control.B)] or part.control.X and loc_colour(part.control.X) or nil, r = 0.05, padding = 0, res = 0.15}, nodes={}}
             final_line[#final_line].nodes[1] = {n=G.UIT.O, config={ minh = 0, padding = 0,
-            object = DynaText({string = {assembled_string}, colours = {part.control.V and args.vars.colours[tonumber(part.control.V)] or loc_colour(part.control.C or nil, G.C.UI.TEXT_LIGHT) or args.text_colour},
+            object = DynaText({string = {assembled_string}, colours = {part.control.V and args.vars.colours[tonumber(part.control.V)] or (loc_colour(part.control.C or nil) == G.C.UI.TEXT_DARK and args.text_colour) or loc_colour(part.control.C or nil) or args.text_colour},
                 float = _float,
                 silent = _silent,
                 pop_in = _pop_in,
@@ -283,7 +283,7 @@ function Stacked.stacked_localize_box(lines, args)
                 padding = 0,
                 text = assembled_string,
                 shadow = args.shadow,
-                colour = part.control.V and args.vars.colours[tonumber(part.control.V)] or loc_colour(part.control.C or nil, G.C.UI.TEXT_LIGHT) or args.text_colour,
+                colour = part.control.V and args.vars.colours[tonumber(part.control.V)] or (loc_colour(part.control.C or nil) == G.C.UI.TEXT_DARK and args.text_colour) or loc_colour(part.control.C or nil) or args.text_colour,
                 font = SMODS.Fonts[part.control.f] or (tonumber(part.control.f) and G.FONTS[tonumber(part.control.f)]),
                 scale = 0.32*(part.control.s and tonumber(part.control.s) or args.scale  or 1)*desc_scale*(args.fixed_scale or 1)}},
             }}
@@ -608,4 +608,21 @@ function Stacked.localize(args, misc_cat)
     end
 
     return args.nodes
+end
+
+function Stacked.firstToUpper(str) --Uppercase the first letter.
+    return (str:gsub("^%l", string.upper))
+end
+
+function Stacked.firstToLower(str) --Lowercase the first letter.
+    return (str:gsub("^%u", string.lower))
+end
+
+function Stacked.get_card_pos(card) --Get the position of the card in its area.
+    if card and card.area then
+        for i,v in ipairs(card.area.cards) do
+            if v == card then return i end
+        end
+    end
+    return 0
 end

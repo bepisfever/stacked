@@ -14,7 +14,7 @@ if self.children.h_popup then
     for i = 1, Stacked.effect_per_page do
         local comment = self.children.h_popup:get_UIE_by_ID('stacked_effect_box'..i)
         if comment then
-            comment.config.minw = comment:get_major().major.T.w - (0.03+0.1)*2
+            comment.config.minw = comment:get_major().major.T.w - (0.05+0.1)*2
             self.children.h_popup:recalculate()
         end
     end

@@ -29,7 +29,7 @@ ExtraEffects = {
         type = "attack",
         ability = {chips = 5, min_possible = 25, max_possible = 100, suit = "Spades"},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.chips, ability_table.suit, Stacked.round(ability_table.perfect, 1), colours = {G.C.SUITS[ability_table.suit], {1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.chips, ability_table.suit, colours = {G.C.SUITS[ability_table.suit]}}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssc_randomize"))
@@ -54,7 +54,7 @@ ExtraEffects = {
         type = "attack",
         ability = {xmult = 1, min_possible = 1.1, max_possible = 1.5, suit = "Spades"},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.xmult, ability_table.suit, Stacked.round(ability_table.perfect, 1), colours = {G.C.SUITS[ability_table.suit], {1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.xmult, ability_table.suit, colours = {G.C.SUITS[ability_table.suit]}}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.suit = pseudorandom_element({"Spades", "Hearts", "Clubs", "Diamonds"}, pseudoseed(card.config.center.key.."ssx_randomize"))
@@ -79,7 +79,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 1.5},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb1_potency_roll", min = 0, max = 5}
@@ -101,7 +101,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff, string.lower(ability_table.buff <= 1 and localize("stck_singular_hands") or localize("stck_plural_hands"))}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb2_potency_roll", min = 0, max = 1}
@@ -118,11 +118,11 @@ ExtraEffects = {
                 ease_hands_played(diff)
             end
         end,
-        on_apply = function(card, ability_table, repeated)
+        on_apply = function(card, ability_table, ability_index)
             G.GAME.round_resets.hands = G.GAME.round_resets.hands + ability_table.buff
             ease_hands_played(ability_table.buff)
         end,
-        on_remove = function(card, ability_table, card_destroyed)
+        on_remove = function(card, ability_table, card_destroyed, ability_index)
             G.GAME.round_resets.hands = G.GAME.round_resets.hands - ability_table.buff
             ease_hands_played(-ability_table.buff)
         end,
@@ -132,7 +132,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff, string.lower(ability_table.buff <= 1 and localize("stck_singular_discards") or localize("stck_plural_discards"))}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb3_potency_roll", min = 0, max = 1}
@@ -149,11 +149,11 @@ ExtraEffects = {
                 ease_discard(diff)
             end
         end,
-        on_apply = function(card, ability_table, repeated)
+        on_apply = function(card, ability_table, ability_index)
             G.GAME.round_resets.discards = G.GAME.round_resets.discards + ability_table.buff
             ease_discard(ability_table.buff)
         end,
-        on_remove = function(card, ability_table, card_destroyed)
+        on_remove = function(card, ability_table, card_destroyed, ability_index)
             G.GAME.round_resets.discards = G.GAME.round_resets.discards - ability_table.buff
             ease_discard(-ability_table.buff)
         end,
@@ -163,7 +163,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2, remaining = 1},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff, math.ceil(ability_table.remaining), string.lower(ability_table.buff <= 1 and localize("stck_singular_times") or localize("stck_plural_times"))}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb4_potency_roll", min = 0, max = 1}
@@ -177,7 +177,7 @@ ExtraEffects = {
             ability_table.buff = new
             ability_table.remaining = ability_table.remaining + diff
         end,
-        on_apply = function(card, ability_table, repeated, ability_index)
+        on_apply = function(card, ability_table, ability_index)
             if ability_table.remaining <= 0 then
                 table.remove(card.ability.hsr_extra_effects,ability_index)
             end
@@ -203,7 +203,7 @@ ExtraEffects = {
             return false
         end,
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb5_potency_roll", min = 0, max = 5}
@@ -223,7 +223,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 5, max_possible = 20},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb6_potency_roll", min = 0, max = 10}
@@ -243,13 +243,13 @@ ExtraEffects = {
                 end
             end
         end,
-        on_apply = function(card, ability_table, repeated)
+        on_apply = function(card, ability_table, ability_index)
             if G.GAME.blind and G.GAME.blind.in_blind then
                 G.GAME.blind.chips = G.GAME.blind.chips * (1 - (ability_table.buff/100))
                 G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
             end
         end,
-        on_remove = function(card, ability_table, card_destroyed)
+        on_remove = function(card, ability_table, card_destroyed, ability_index)
             if G.GAME.blind and G.GAME.blind.in_blind then
                 G.GAME.blind.chips = G.GAME.blind.chips / (1 - (ability_table.buff/100))
                 G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
@@ -267,7 +267,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 5, max_possible = 10},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff, string.lower(ability_table.buff <= 1 and localize("stck_singular_rounds") or localize("stck_plural_rounds"))}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb7_potency_roll", min = 0, max = 5}
@@ -281,7 +281,7 @@ ExtraEffects = {
             ability_table.max_buff = new
             ability_table.buff = ability_table.buff + diff
         end,
-        on_apply = function(card, ability_table, repeated)
+        on_apply = function(card, ability_table, ability_index)
             ability_table.buff = ability_table.max_buff
         end,
         calculate = function(card, context, ability_table, ability_index)
@@ -303,7 +303,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2, remaining = 1},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff, math.ceil(ability_table.remaining)}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb8_potency_roll", min = 0, max = 1}
@@ -317,7 +317,7 @@ ExtraEffects = {
             ability_table.buff = new
             ability_table.remaining = ability_table.remaining + diff
         end,
-        on_apply = function(card, ability_table, repeated, ability_index)
+        on_apply = function(card, ability_table, ability_index)
             if ability_table.remaining <= 0 then
                 table.remove(card.ability.hsr_extra_effects,ability_index)
             end
@@ -355,7 +355,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = "Tarot"},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb9_potency_roll", min = 0, max = 1}
@@ -375,7 +375,7 @@ ExtraEffects = {
         type = "passive",
         ability = {mult = 0, buff = 1, min_possible = 10, max_possible = 50},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.mult, ability_table.buff * 100, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.mult, ability_table.buff * 100}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb10_potency_roll", min = 0, max = 100}
@@ -403,7 +403,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 5},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff}}
         end,
         in_pool = function(card)
             if not card.ability or not card.ability.hsr_extra_effects or #card.ability.hsr_extra_effects <= 0 then
@@ -437,7 +437,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 2},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff, string.lower(ability_table.buff <= 1 and localize("stck_singular_times") or localize("stck_plural_times"))}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb12_potency_roll", min = 0, max = 1}
@@ -465,9 +465,9 @@ ExtraEffects = {
     joker_buff13 = {
         key = "joker_buff13", 
         type = "passive",
-        ability = {buff = 1, min_possible = 0, max_possible = 4},
+        ability = {buff = 1, min_possible = 1, max_possible = 4},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb13_potency_roll", min = 0, max = 4}
@@ -489,7 +489,7 @@ ExtraEffects = {
         type = "passive",
         ability = {direction = "left", buff = 1, min_possible = 0.2, max_possible = 0.5},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {localize("joker_buff14_direction_"..ability_table.direction), ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {localize("joker_buff14_direction_"..ability_table.direction), ability_table.buff}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.direction = pseudorandom_element({"left", "right"}, pseudoseed("jb14_dir_roll"))
@@ -518,7 +518,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 5, x = 1},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.x, ability_table.buff, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.x, ability_table.buff}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb15_potency_roll", min = 0, max = 25}
@@ -550,7 +550,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 15, remaining = 1},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, ability_table.remaining, Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {ability_table.buff, math.ceil(ability_table.remaining), string.lower(math.ceil(ability_table.remaining) <= 1 and localize("stck_singular_times") or localize("stck_plural_times"))}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb16_potency_roll", min = 0, max = 14}
@@ -564,7 +564,7 @@ ExtraEffects = {
             ability_table.buff = new
             ability_table.remaining = ability_table.remaining + diff
         end,
-        on_apply = function(card, ability_table, repeated, ability_index)
+        on_apply = function(card, ability_table, ability_index)
             if ability_table.remaining <= 0 then
                 table.remove(card.ability.hsr_extra_effects,ability_index)
             end
@@ -587,7 +587,7 @@ ExtraEffects = {
         type = "passive",
         ability = {direction = "left", buff = 1, min_possible = 0.01, max_possible = 0.05},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {localize("joker_buff14_direction_"..ability_table.direction), Stacked.round(ability_table.buff,3), Stacked.round(ability_table.perfect, 1), colours = {{1 - (1 * ability_table.perfect/100), 1 * ability_table.perfect/100, 0, 1}}}}
+            return {vars = {localize("joker_buff14_direction_"..ability_table.direction), Stacked.round(ability_table.buff,3)}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.direction = pseudorandom_element({"left", "right"}, pseudoseed("jb17_dir_roll"))
@@ -635,6 +635,253 @@ ExtraEffects = {
         check_showman = function(card, ability_table, card_key, abiltiy_index)
             if card_key == card.config.center.key then
                 return true
+            end
+        end,
+    },
+    joker_buff19 = {
+        key = "joker_buff19", 
+        type = "passive",
+        ability = {buff = 1, min_possible = 1, max_possible = 3},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff, string.lower(ability_table.buff <= 1 and localize("stck_singular_times") or localize("stck_plural_times"))}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb19_potency_roll", min = 0, max = 3}
+            ability_table.buff = math.ceil((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = math.ceil((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)))
+        end,
+        probability_reroll = function(card, obj, res, ability_table, ability_index, numerator, denominator)
+            if card == obj and not res then
+                return{
+                    to_true = ability_table.buff,
+                    func = function()
+                        SMODS.calculate_effect({message = "Rerolled!", colour = G.C.GREEN}, card)
+                    end,
+                }
+            end
+        end,
+    },
+    joker_buff20 = {
+        key = "joker_buff20", 
+        type = "passive",
+        ability = {buff = 1, min_possible = 5, max_possible = 15},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {Stacked.round(ability_table.buff,1)}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb20_potency_roll", min = 0, max = 10}
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.joker_main then
+                return{
+                    mult = Stacked.round(ability_table.buff,1)
+                }
+            end
+        end,
+    },
+    joker_buff21 = {
+        key = "joker_buff21", 
+        type = "passive",
+        ability = {buff = 1, min_possible = 15, max_possible = 50},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {Stacked.round(ability_table.buff,1)}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb21_potency_roll", min = 0, max = 10}
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.joker_main then
+                return{
+                    chips = Stacked.round(ability_table.buff,1)
+                }
+            end
+        end,
+    },
+    joker_buff22 = {
+        key = "joker_buff22", 
+        type = "passive",
+        ability = {buff = 1, min_possible = 1.1, max_possible = 1.5},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {Stacked.round(ability_table.buff,1)}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb22_potency_roll", min = 0, max = 5}
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.joker_main then
+                return{
+                    xmult = Stacked.round(ability_table.buff,1)
+                }
+            end
+        end,
+    },
+    joker_buff23 = {
+        key = "joker_buff23", 
+        type = "passive",
+        ability = {buff = 1, min_possible = 1, max_possible = 5},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb23_potency_roll", min = 0, max = 5}
+            ability_table.buff = math.floor((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)))
+        end,
+        update_values = function(card, ability_table)
+            local new = math.floor((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)))
+            local old = ability_table.buff
+            local diff = new - old
+
+            G.GAME.extra_interest_cap = G.GAME.extra_interest_cap or 0
+            G.GAME.extra_interest_cap = G.GAME.extra_interest_cap + diff
+
+            ability_table.buff = new
+        end,
+        on_apply = function(card, ability_table)
+            G.GAME.extra_interest_cap = G.GAME.extra_interest_cap or 0
+            G.GAME.extra_interest_cap = G.GAME.extra_interest_cap + ability_table.buff
+        end,
+        on_remove = function(card, ability_table)
+            G.GAME.extra_interest_cap = G.GAME.extra_interest_cap or 0
+            G.GAME.extra_interest_cap = G.GAME.extra_interest_cap - ability_table.buff
+        end,
+    },
+    joker_buff24 = {
+        key = "joker_buff24", 
+        type = "passive",
+        ability = {buff = 1, min_possible = 1.1, max_possible = 1.5},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb24_potency_roll", min = 0, max = 5}
+            ability_table.buff = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+        end,
+        update_values = function(card, ability_table)
+            local new = (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+            ability_table.buff = new
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.selling_card and context.card ~= card and context.card.config and context.card.config.center and context.card.config.center.set == "Joker" then
+                card.sell_cost = Stacked.round(card.sell_cost * ability_table.buff,2)
+                SMODS.calculate_effect({message = "Upgraded!"}, card)
+            end
+        end,
+    },
+    joker_buff25 = {
+        key = "joker_buff25", 
+        type = "passive",
+        ability = {buff = 1, min_possible = 0.2, max_possible = 0.5},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb25_potency_roll", min = 0, max = 5}
+            ability_table.buff = Stacked.round((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)), 1)
+        end,
+        update_values = function(card, ability_table)
+            local new = Stacked.round((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)), 1)
+            local old = ability_table.buff
+            local diff = new - old
+
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest or 0
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest - diff
+
+            ability_table.buff = new
+        end,
+        on_apply = function(card, ability_table)
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest or 0
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest - ability_table.buff
+        end,
+        on_remove = function(card, ability_table)
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest or 0
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest + ability_table.buff
+        end,
+    },
+    joker_curse1 = {
+        key = "joker_curse1", 
+        type = {"passive", "cursed"},
+        ability = {buff = 1, min_possible = 0.2, max_possible = 0.5},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.buff}}
+        end,
+        in_pool = function(card)
+            return false
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jc1_potency_roll", min = 0, max = 5}
+            ability_table.buff = Stacked.round((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)), 1)
+        end,
+        update_values = function(card, ability_table)
+            local new = Stacked.round((ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100)), 1)
+            local old = ability_table.buff
+            local diff = new - old
+
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest or 0
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest + diff
+
+            ability_table.buff = new
+        end,
+        on_apply = function(card, ability_table)
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest or 0
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest + ability_table.buff
+        end,
+        on_remove = function(card, ability_table)
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest or 0
+            G.GAME.extra_per_interest = G.GAME.extra_per_interest - ability_table.buff
+        end,
+    },
+    joker_curse2 = {
+        key = "joker_curse2", 
+        type = {"passive", "cursed"},
+        no_potency = true,
+        ability = {direction = "left"},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {localize("joker_buff14_direction_"..ability_table.direction)}}
+        end,
+        in_pool = function(card)
+            return false
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.direction = pseudorandom_element({"left", "right"}, pseudoseed("jc2_dir_roll"))
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.before and context.main_eval then
+                local pos = Stacked.get_card_pos(card)
+                local other_joker = ability_table.direction == "left" and G.jokers.cards[pos-1] or G.jokers.cards[pos+1]
+                if other_joker then
+                    SMODS.debuff_card(other_joker, true, "joker_curse2")
+                end
+            end
+            if context.after then
+                local pos = Stacked.get_card_pos(card)
+                local other_joker = ability_table.direction == "left" and G.jokers.cards[pos-1] or G.jokers.cards[pos+1]
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        if other_joker then
+                            SMODS.debuff_card(other_joker, false, "joker_curse2")
+                        end
+                        return true
+                    end
+                }))
+            end
+            if context.joker_buff then
+                return{
+                    buff = 1.5
+                }
             end
         end,
     },

@@ -66,6 +66,7 @@ return{
         passive = "Passive",
         attack = "Attack",
         potency = "Potency [{V:1}#1#{}%]",
+        cursed = "{C:stck_cursed}Cursed",
     },
     ExtraEffects = {
         joker_youforgotyourfuckingdescription = {
@@ -103,21 +104,21 @@ return{
             },
         },
         score_suit_mult = {
-            name = "Attack on Mult",
+            name = "Suit Synergy M",
             text = {
                 "Scored {V:1}#2#{} cards",
                 "give {C:mult}+#1#{} Mult",
             },
         },
         score_suit_chips = {
-            name = "Attack on Chips",
+            name = "Suit Synergy C",
             text = {
                 "Scored {V:1}#2#{} cards",
                 "give {C:chips}+#1#{} Chips",
             },
         },
         score_suit_xmult = {
-            name = "Attack on XMult",
+            name = "Suit Synergy X",
             text = {
                 "Scored {V:1}#2#{} cards",
                 "give {X:mult,C:white}X#1#{} Mult",
@@ -126,27 +127,27 @@ return{
         joker_buff1 = {
             name = "Amplify",
             text = {
-                "Joker gives {X:dark_edition,C:white}X#1#{} more",
+                "Joker gives {X:stck_m_a_c,C:white}X#1#{} more",
                 "{C:chips}Chips{}/{C:mult}Mult{}",
             },
         },
         joker_buff2 = {
             name = "Helping Hands",
             text = {
-                "Joker gives {C:blue}+#1#{} Hands",
+                "Joker gives {C:blue}+#1#{} #2#",
             },
         },
         joker_buff3 = {
             name = "More Discards",
             text = {
-                "Joker gives {C:red}+#1#{} Discards",
+                "Joker gives {C:red}+#1#{} #2#",
             },
         },
         joker_buff4 = {
             name = "*But it refused.",
             text = {
                 "Joker is {C:red}immune{} to {C:red}destruction{}",
-                "#1# times",
+                "#1# #3#",
                 "{C:inactive}(Uses left: #2#){}",
             },
         },
@@ -168,7 +169,7 @@ return{
             name = "Fast Pacing",
             text = {
                 "{C:attention}Retrigger{} this Joker {C:attention}once{}",
-                "for {C:attention}#1#{} rounds",
+                "for {C:attention}#1#{} #2#",
             },
         },
         joker_buff8 = {
@@ -209,7 +210,7 @@ return{
             text = {
                 "When {C:red}destroyed{}, give a {C:attention}random{}",
                 "owned Joker a {C:attention}random{} Effect",
-                "{C:attention}#1#{} times",
+                "{C:attention}#1#{} #2#",
             },
         },
         joker_buff13 = {
@@ -223,24 +224,24 @@ return{
             name = "Blueprint...?",
             text = {
                 "Copy ability of Joker to the {C:attention}#1#{},",
-                "{X:dark_edition,C:white}X#2#{} {C:mult}Mult{}/{C:chips}Chips{} given",
+                "{X:stck_m_a_c,C:white}X#2#{} {C:mult}Mult{}/{C:chips}Chips{} given",
             },
         },
         joker_buff15 = {
             name = "Scaling Buddies",
             text = {
-                "{X:dark_edition,C:white}X#1#{} {C:mult}Mult{}/{C:chips}Chips{} given",
-                "Increase by {X:dark_edition,C:white}X0.02{} whenever",
+                "{X:stck_m_a_c,C:white}X#1#{} {C:mult}Mult{}/{C:chips}Chips{} given",
+                "Increase by {X:stck_m_a_c,C:white}X0.02{} whenever",
                 "a Joker's {C:attention}value{} is increased by",
                 "{C:attention}#2#{} or below {C:inactive,s:0.75}(At least 0.2)",
-                "{C:inactive,s:0.75}(Can gain up to {X:dark_edition,C:white,s:0.75}X0.1{C:inactive,s:0.75} per round)",
+                "{C:inactive,s:0.75}(Can gain up to {X:stck_m_a_c,C:white,s:0.75}X0.1{C:inactive,s:0.75} per round)",
             },
         },
         joker_buff16 = {
             name = "Protector",
             text = {
                 "Prevent {C:attention}Playing Cards{} from",
-                "being {C:red}destroyed{} #1# times",
+                "being {C:red}destroyed{} #1# #3#",
                 "{C:inactive}(Uses left: #2#){}",
             },
         },
@@ -259,11 +260,82 @@ return{
                 "times",
             },
         },
+        joker_buff19 = {
+            name = "Again!",
+            text = {
+                "If Joker's {C:green}probability{} failed, {C:green}reroll{}",
+                "it up to {C:attention}#1#{} #2#",
+            },
+        },
+        joker_buff20 = {
+            name = "More Mult",
+            text = {
+                "{C:mult}+#1#{} Mult",
+            },
+        },
+        joker_buff21 = {
+            name = "More Chips",
+            text = {
+                "{C:chips}+#1#{} Chips",
+            },
+        },
+        joker_buff22 = {
+            name = "More XMult",
+            text = {
+                "{C:white,X:mult}X#1#{} Mult",
+            },
+        },
+        joker_buff23 = {
+            name = "Better Finance",
+            text = {
+                "Increase {C:money}Interest Cap{}",
+                "by {C:money}$#1#{}",
+            },
+        },
+        joker_buff24 = {
+            name = "Inflation",
+            text = {
+                "When a {C:attention}Joker{} is {C:attention}sold{},",
+                "increase this Joker's {C:attention}Sell Value{}",
+                "by {X:money,C:white}X#1#{}",
+            },
+        },
+        joker_buff25 = {
+            name = "Bank Income",
+            text = {
+                "Decrease money needed per {C:money}$1{}",
+                "interest by {C:money}$#1#{}",
+            },
+        },
+
+        joker_curse1 = {
+            name = "Greed #1#",
+            text = {
+                "Increase money needed per {C:money}$1{}",
+                "interest by {C:money}$#1#{}",
+            },
+        },
+        joker_curse2 = {
+            name = "Desire for Power",
+            text = {
+                "{C:red}Debuff{} Joker to the {C:attention}#1#{} when",
+                "hand is {C:attention}played{}, and increase",
+                "{C:mult}Mult{}/{C:chips}Chips{} given by {X:stck_m_a_c,C:white}X1.5{}",
+            },
+        },
     },
     misc = {
         dictionary = {
             joker_buff14_direction_left = "left",
             joker_buff14_direction_right = "right",
+            stck_plural_hands = "Hands",
+            stck_singular_hands = "Hand",
+            stck_plural_discards = "Discards",
+            stck_singular_discards = "Discard",
+            stck_plural_times = "Times",
+            stck_singular_times = "Time",
+            stck_plural_rounds = "Rounds",
+            stck_singular_rounds = "Round",
         },
     }
 }

@@ -44,7 +44,7 @@ function apply_extra_effect(card, effect, bypass_cap)
         end
         if card.area == G.jokers then
             if new_effect.on_apply and type(new_effect.on_apply) == "function" then
-                new_effect.on_apply(card, card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability, card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability.on_apply_flagged, #card.ability.hsr_extra_effects)
+                new_effect.on_apply(card, card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability, #card.ability.hsr_extra_effects)
                 card.ability.hsr_extra_effects[#card.ability.hsr_extra_effects].ability.on_apply_flagged = true
             end
         end
@@ -88,4 +88,10 @@ function Stacked.pool_effects(t, card, include)
     end
 
     return ret
+end
+
+function Stacked.extra_effect(args)
+    if args and args.key then
+        ExtraEffects[args.key] = args
+    end
 end
