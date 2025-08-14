@@ -71,12 +71,20 @@ function Stacked.poll_potency(args)
     return math.min((G.GAME.hsr_min_potency and math.max(potency_roll, G.GAME.hsr_min_potency)) or potency_roll, ((args.unaff_cap and 100) or G.GAME.hsr_potency_cap or 100))
 end
 
-function Stacked.pool_effects(t, card, include)
+function Stacked.calc_min_max(ability_table, args)
+    if ability_table then
+        return (ability_table.min_possible) + ((ability_table.max_possible - ability_table.min_possible) * (ability_table.perfect/100))
+    else
+        return (args.min) + ((args.max - args.min) * (args.perfect/100))
+    end
+end
+
+function Stacked.pool_effects(t, card, include, ignore_in_pool)
     local ret = {}
     for i,v in pairs(ExtraEffects) do
-        if not include_all and v.type and Stacked.t_contains((type(v.type) == "table" and v.type) or {v.type}, t) and (not v.in_pool or (v.in_pool and (card and v:in_pool(card) or v:in_pool({})))) then
+        if not include_all and v.type and Stacked.t_contains((type(v.type) == "table" and v.type) or {v.type}, t) and (ignore_in_pool or (not v.in_pool or (v.in_pool and (card and v:in_pool(card) or v:in_pool({}))))) then
             ret[#ret+1] = i
-        elseif include and v.type and (not v.in_pool or (v.in_pool and (card and v:in_pool(card) or v:in_pool({})))) then
+        elseif include and v.type and (ignore_in_pool or (not v.in_pool or (v.in_pool and (card and v:in_pool(card) or v:in_pool({}))))) then
             local exist = false
             for _,vv in ipairs((type(t) == "table" and t) or {t}) do
                 if Stacked.t_contains((type(v.type) == "table" and v.type) or {v.type},vv) then exist = true; break end

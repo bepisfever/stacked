@@ -325,25 +325,18 @@ function Card:calculate_joker(context)
         end
         return i
     end
-    if ret and type(ret) == "table" and table_count(ret) >= 1 then
-        for _,v in ipairs(G.jokers.cards) do
-            if v.ability and v.ability.hsr_extra_effects then
-                for ii,vv in ipairs(v.ability.hsr_extra_effects) do
-                    if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].modify_calculate and type(ExtraEffects[vv.key].modify_calculate) == "function" then
-                        ExtraEffects[vv.key].modify_calculate(v, context, self, vv.ability, ret, ii)
-                    end
-                end
-            end
-        end
-    end
     
     if self.ability and self.ability.hsr_extra_effects then
         for i,v in ipairs(self.ability.hsr_extra_effects) do
             if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].calculate and type(ExtraEffects[v.key].calculate) == "function" then
                 local calc = ExtraEffects[v.key].calculate(self, context, v.ability, i)
+                if calc and v.key and ExtraEffects[v.key] and ExtraEffects[v.key] and ExtraEffects[v.key].type then
+                    calc.effect_type = type(ExtraEffects[v.key].type) == "table" and ExtraEffects[v.key].type or {ExtraEffects[v.key].type}
+                end
                 if calc then
                     ret = SMODS.merge_effects({ret or {}, calc or {}})
                 end
+
                 local function recursive_check(t)
                     local shits_and_giggles = {"xmult", "mult", "xchips", "chips"}
                     for i,vv in pairs(t) do
@@ -370,6 +363,29 @@ function Card:calculate_joker(context)
             end
         end
     end
+
+    if ret and type(ret) == "table" and table_count(ret) >= 1 then
+        for _,v in ipairs(G.jokers.cards) do
+            if v.ability and v.ability.hsr_extra_effects then
+                for ii,vv in ipairs(v.ability.hsr_extra_effects) do
+                    if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].change_calc_type and type(ExtraEffects[vv.key].change_calc_type) == "function" then
+                        ExtraEffects[vv.key].change_calc_type(v, context, self, vv.ability, ret, ii)
+                    end
+                end
+            end
+        end
+        
+        for _,v in ipairs(G.jokers.cards) do
+            if v.ability and v.ability.hsr_extra_effects then
+                for ii,vv in ipairs(v.ability.hsr_extra_effects) do
+                    if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].modify_calculate and type(ExtraEffects[vv.key].modify_calculate) == "function" then
+                        ExtraEffects[vv.key].modify_calculate(v, context, self, vv.ability, ret, ii)
+                    end
+                end
+            end
+        end
+    end
+
     if ret or t then return ret, t end
 end
 
@@ -731,5 +747,46 @@ function SMODS.pseudorandom_probability(trigger_obj, seed, base_numerator, base_
         end
     end
 
+    return ret
+end
+
+local hookTo = Game.start_run
+function Game.start_run(...)
+    local ret = hookTo(...)
+
+    if G.GAME.stake > 3 then
+        G.GAME.cursed_effects_enable = G.GAME.cursed_effects_enable or true
+    end
+
+    return ret
+end
+
+local hookTo = Card.use_consumeable
+function Card:use_consumeable(...)
+    local ret = hookTo(self,...)
+    if self.config and self.config.center and self.config.center.set == "Tarot" then
+        for _,v in ipairs(G.jokers and G.jokers.cards or {}) do
+            if v.ability and v.ability.hsr_extra_effects then
+                for ii,vv in ipairs(v.ability.hsr_extra_effects) do
+                    if vv.key == "joker_curse5" then
+                        vv.ability.used_tarot = true
+                    end
+                end
+            end
+        end
+    end
+    return ret
+end
+
+local hookTo = Card.can_sell_card
+function Card:can_sell_card(context)
+    local ret = hookTo(self, context)
+    if self.ability and self.ability.hsr_extra_effects then
+        for _,v in ipairs(self.ability.hsr_extra_effects) do
+            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].prevent_sold then
+                return false
+            end
+        end
+    end
     return ret
 end

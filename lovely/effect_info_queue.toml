@@ -1,0 +1,25 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+if first_pass and not (_c.set == 'Edition') and badges then
+'''
+position = 'before'
+payload = '''
+if first_pass and card then
+    if card.ability and card.ability.hsr_extra_effects then
+        for i,v in ipairs(card.ability.hsr_extra_effects) do
+            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].loc_vars and type(ExtraEffects[v.key].loc_vars) == "function" then
+                ExtraEffects[v.key].loc_vars(info_queue, card, v.ability)
+            end
+        end
+    end
+end
+'''
+match_indent = true
+times = 1

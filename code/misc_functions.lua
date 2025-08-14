@@ -62,6 +62,11 @@ function Stacked.ischips(str)
     return false
 end
 
+function Stacked.is_mult_or_chips(str)
+    if Stacked.ismult(str) or Stacked.isxmult(str) or Stacked.ischips(str) or Stacked.isxchips(str) then return true end
+    return false
+end
+
 function Stacked.is_food_joker(joker) --thanks dilly
     if joker.ability.isFood then
         return joker.ability.isFood
@@ -110,6 +115,41 @@ function Stacked.t_contains(t,check)
         end
         return false
     end
+end
+
+function Stacked.equal(t1, t2, r)
+    local table1 = type(t1) == "table" and t1 or {t1}
+    local table2 = type(t2) == "table" and t2 or {t2}
+
+    for i,v in pairs(table1) do
+        if not table2[i] then return false end
+        if type(v) ~= type(table2[i]) then return false end
+        if type(v) == "table" then
+            return Stacked.equal(v, table2[i])
+        end
+        if v ~= table2[i] then return false end
+    end
+
+    return r or Stacked.equal(table2,table1,true)
+end
+
+function Stacked.get_similar_pool(pool, args)
+    local valid_pool = {}
+    for i,v in pairs(pool) do
+        local valid = true
+        for ii,vv in pairs(v) do
+            if args[ii] then
+                if not Stacked.equal(vv,args[ii]) then
+                    valid = false
+                    break
+                end
+            end
+        end
+        if valid then
+            table.insert(valid_pool, v)
+        end
+    end
+    return valid_pool
 end
 
 function plcsplit(s, separator)

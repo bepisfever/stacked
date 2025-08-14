@@ -307,12 +307,69 @@ return{
                 "interest by {C:money}$#1#{}",
             },
         },
+        joker_buff26 = {
+            name = "Mult Conversion",
+            text = {
+                "Scored cards give {C:mult}+Mult{} equal",
+                "to {C:chips}#1#%{} of their {C:chips}Chips{}",
+            },
+        },
+        joker_buff27 = {
+            name = "Attack Harmony MXM",
+            text = {
+                "When Joker to the {C:attention}#1#{} gives {C:mult}+Mult{}/{X:mult,C:white}XMult{},",
+                "it counts as an {C:attention}Attack{}",
+            },
+        },
+        joker_buff28 = {
+            name = "Attack Harmony CXC",
+            text = {
+                "When Joker to the {C:attention}#1#{} gives {C:chips}+Chips{}/{X:chips,C:white}XChips{},",
+                "it counts as an {C:attention}Attack{}",
+            },
+        },
+        joker_buff29 = {
+            name = "Commander",
+            text = {
+                "All {C:attention}Attacks{} give",
+                "{X:stck_m_a_c,C:white}X#1#{} more {C:mult}Mult{}/{C:chips}Chips",
+            },
+        },
+        joker_buff30 = {
+            name = "Passing on the torch",
+            text = {
+                "When {C:red}destroyed{}, give a {C:attention}random{}",
+                "owned Joker a {C:attention}random Attack{} Effect",
+                "{C:attention}#1#{} #2#",
+            },
+        },
+        joker_buff31 = {
+            name = "Balanced Combat Stance MC",
+            text = {
+                "If an {C:attention}Attack{} gives {C:mult}+Mult{},",
+                "give {C:chips}#1#%{} of that as {C:chips}+Chips{}",
+            },
+        },
+        joker_buff32 = {
+            name = "Balanced Combat Stance CM",
+            text = {
+                "If an {C:attention}Attack{} gives {C:mult}+Mult{},",
+                "give {C:chips}#1#%{} of that as {C:chips}+Chips{}",
+            },
+        },
+        joker_buff33 = {
+            name = "Here comes the {C:blue}Tsunami{}!",
+            text = {
+                "Every {C:attention}played card{} counts in scoring",
+            },
+        },
 
         joker_curse1 = {
-            name = "Greed #1#",
+            name = "Instant Gratification",
             text = {
                 "Increase money needed per {C:money}$1{}",
-                "interest by {C:money}$#1#{}",
+                "interest by {C:money}$#1#{}, give {C:money}$2{}",
+                "at the end of round",
             },
         },
         joker_curse2 = {
@@ -321,6 +378,55 @@ return{
                 "{C:red}Debuff{} Joker to the {C:attention}#1#{} when",
                 "hand is {C:attention}played{}, and increase",
                 "{C:mult}Mult{}/{C:chips}Chips{} given by {X:stck_m_a_c,C:white}X1.5{}",
+            },
+        },
+        joker_curse3 = {
+            name = "Preferential Treatment",
+            text = {
+                "If {C:attention}scored hand{} has {C:attention}2{}",
+                "or more cards, {C:red}debuff{} {C:attention}#1#{} card,",
+                "and {C:attention}retrigger{} {C:attention}#2#{} card once",
+            },
+        },
+        joker_curse4 = {
+            name = "Suit Preference",
+            text = {
+                "Scored {V:1}#1#{} cards give {C:mult}-#2#{} Mult",
+                "Scored {V:2}#3#{} cards give {C:mult}+#4#{} Mult",
+            },
+        },
+        joker_curse5 = {
+            name = "Misleading Belief",
+            text = {
+                "Create a {C:attention}Tarot{} card at the",
+                "end of round. Joker is {C:red}debuffed{} if",
+                "no {C:attention}Tarot{} card is {C:attention}used{} in round",
+                "{C:inactive}(Must have room)",
+            },
+        },
+        joker_curse6 = {
+            name = "Overachiever",
+            text = {
+                "Decrease {C:attention}blind requirement{} by",
+                "{C:attention}20%{}, increase {C:attention}winning ante{} by",
+                "{C:attention}1{}",
+            },
+        },
+        joker_curse7 = {
+            name = "Unreachable Potential",
+            text = {
+                "Joker {C:red}cannot{} be sold, increase",
+                "{C:money}Sell Value{} by {C:money}$3{} at",
+                "end of round",
+            },
+        },
+        joker_curse8 = {
+            name = "Wild Joker",
+            text = {
+                "When Joker is {C:red}destroyed{}, become a",
+                "random Joker of the same {C:attention}rarity{}",
+                "instead for {C:attention}#1#{} #3#",
+                "{C:inactive}(Uses left: #2#)",
             },
         },
     },
@@ -336,6 +442,8 @@ return{
             stck_singular_times = "Time",
             stck_plural_rounds = "Rounds",
             stck_singular_rounds = "Round",
+            stck_most_left = "leftmost",
+            stck_most_right = "rightmost",
         },
     }
 }
