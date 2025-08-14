@@ -79,12 +79,12 @@ function Stacked.calc_min_max(ability_table, args)
     end
 end
 
-function Stacked.pool_effects(t, card, include, ignore_in_pool)
+function Stacked.pool_effects(t, card, include_all, ignore_in_pool)
     local ret = {}
     for i,v in pairs(ExtraEffects) do
         if not include_all and v.type and Stacked.t_contains((type(v.type) == "table" and v.type) or {v.type}, t) and (ignore_in_pool or (not v.in_pool or (v.in_pool and (card and v:in_pool(card) or v:in_pool({}))))) then
             ret[#ret+1] = i
-        elseif include and v.type and (ignore_in_pool or (not v.in_pool or (v.in_pool and (card and v:in_pool(card) or v:in_pool({}))))) then
+        elseif include_all and v.type and (ignore_in_pool or (not v.in_pool or (v.in_pool and (card and v:in_pool(card) or v:in_pool({}))))) then
             local exist = false
             for _,vv in ipairs((type(t) == "table" and t) or {t}) do
                 if Stacked.t_contains((type(v.type) == "table" and v.type) or {v.type},vv) then exist = true; break end
