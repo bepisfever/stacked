@@ -603,10 +603,10 @@ ExtraEffects = {
                 for i,v in pairs(t) do
                     if type(v) == "table" and i == "extra" then
                         mult_to_xmult(v)
-                    elseif i == "mult" or i == "h_mult" then
+                    elseif i == "mult" or i == "h_mult" and v ~= 0 then
                         xmult_gain = (math.floor(v) * ability_table.buff)
                         t[i] = nil
-                    elseif i == "mult_mod" then
+                    elseif i == "mult_mod" and v ~= 0 then
                         xmult_gain = (math.floor(v) * ability_table.buff)
                         if t["message"] and type(t["message"]) == "string" and string.find(t["message"], "+"..v) then
                             t["message"] = nil
