@@ -434,7 +434,7 @@ return{
             name = "Stretched Hand",
             text = {
                 "On {C:attention}hand played{}, add {C:attention}#1#{}",
-                "{C:attention}rightmost{} #2# {C:attention}held{} in",
+                "{C:attention}leftmost{} #2# {C:attention}held{} in",
                 "hand to {C:attention}scoring hand{} if possible",
                 "{C:inactive,s:0.7}(?)",
                 "{C:inactive,s:0.7}(Poker hand will not be changed)",
@@ -444,7 +444,7 @@ return{
             name = "Stretched Hand MAX",
             text = {
                 "On {C:attention}hand played{}, add {C:attention}#1#{}",
-                "{C:attention}rightmost{} #2# {C:attention}held{} in",
+                "{C:attention}leftmost{} #2# {C:attention}held{} in",
                 "hand to {C:attention}scoring hand{} if possible",
                 Stacked.stylize_str("Added cards will {C:attention}always{} score", {stylize = {s = 0.7, C = "inactive"}}),
                 "{C:inactive,s:0.7}(Poker hand will not be changed)",
