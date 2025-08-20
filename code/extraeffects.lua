@@ -550,7 +550,7 @@ ExtraEffects = {
         type = "passive",
         ability = {buff = 1, min_possible = 1, max_possible = 15, remaining = 1},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff, math.ceil(ability_table.remaining), string.lower(math.ceil(ability_table.remaining) <= 1 and localize("stck_singular_times") or localize("stck_plural_times"))}}
+            return {vars = {math.ceil(ability_table.buff), math.ceil(ability_table.remaining), string.lower(math.ceil(ability_table.remaining) <= 1 and localize("stck_singular_times") or localize("stck_plural_times"))}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb16_potency_roll", min = 0, max = 14}
@@ -1190,6 +1190,352 @@ ExtraEffects = {
             end
         end
     },
+    joker_buff34 = {
+        key = "joker_buff34", 
+        type = {"passive", "timing"},
+        no_potency = true,
+        in_pool = function(card)
+            return false
+        end,
+        change_calc_context = function(card, context, other_card, ret, ability_table, ability_index)
+            if context.before and context.main_eval and card == other_card then
+                return {end_of_round = true, game_over = false, beat_boss = nil}
+            end
+        end,
+    },
+    joker_buff35 = {
+        key = "joker_buff35", 
+        type = {"passive", "timing"},
+        ability = {buff = 1, min_possible = 5, max_possible = 15, remaining = 1},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {math.ceil(ability_table.buff), math.ceil(ability_table.remaining), string.lower(ability_table.buff <= 1 and localize("stck_singular_rounds") or localize("stck_plural_rounds"))}}
+        end,
+        in_pool = function(card)
+            return false
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb35_potency_roll", min = 0, max = 9}
+            ability_table.buff = Stacked.calc_min_max(ability_table)
+            ability_table.remaining = ability_table.buff
+        end,
+        update_values = function(card, ability_table)
+            local new = Stacked.calc_min_max(ability_table)
+            local old = ability_table.buff
+            local diff = new - old
+            ability_table.buff = new
+            ability_table.remaining = ability_table.remaining + diff
+        end,
+        on_apply = function(card, ability_table, ability_index)
+            if ability_table.remaining <= 0 then
+                table.remove(card.ability.hsr_extra_effects,ability_index)
+            end
+        end,
+        change_calc_context = function(card, context, other_card, ret, ability_table, ability_index)
+            if context.individual and context.cardarea == G.hand and not context.end_of_round and card == other_card then
+                return {cardarea == G.jokers, full_hand = G.play.cards, scoring_hand = context.scoring_hand, scoring_name = context.scoring_name, poker_hands = context.poker_hands, joker_main = true}
+            end
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.end_of_round and context.main_eval and ability_table.buff > 0 then
+                ability_table.buff = ability_table.buff - 1
+            end
+            if ability_table.buff <= 0 then
+                table.remove(card.ability.hsr_extra_effects, ability_index)
+            end
+        end,
+    },
+    joker_buff36 = {
+        key = "joker_buff36", 
+        type = {"passive", "timing"},
+        no_potency = true,
+        in_pool = function(card)
+            return false
+        end,
+        change_calc_context = function(card, context, other_card, ret, ability_table, ability_index)
+            if context.individual and context.cardarea == G.hand and not context.end_of_round and card == other_card then
+                return {other_card = context.other_card, full_hand = G.play.cards, scoring_hand = context.scoring_hand, cardarea = G.play, individual = true}
+            end
+        end
+    },
+    joker_buff37 = {
+        key = "joker_buff37", 
+        type = {"passive"},
+        ability = {buff = 1, min_possible = 1.5, max_possible = 2.5, stored_mult = 0, stored_chips = 0},
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {Stacked.round(ability_table.buff, 1), math.ceil(ability_table.stored_mult), math.ceil(ability_table.stored_chips)}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb37_potency_roll", min = 0, max = 10}
+            ability_table.buff = Stacked.calc_min_max(ability_table)
+        end,
+        update_values = function(card, ability_table)
+            local new = Stacked.calc_min_max(ability_table)
+            ability_table.buff = new
+        end,
+        modify_calculate = function(card, context, other_card, ability_table, ret, ability_index)
+            local function reduce_mult_and_chips(t)
+                local remove = {}
+                for i,v in pairs(t) do
+                    if type(v) == "table" and i == "extra" then
+                        reduce_mult_and_chips(v)
+                    elseif Stacked.ismult(i) then
+                        ability_table.stored_mult = ability_table.stored_mult + (v * ability_table.buff)
+                        t[i] = 0
+                        if i == "mult_mod" then remove[#remove+1] = "message" end
+                    elseif Stacked.ischips(i) then
+                        ability_table.stored_chips = ability_table.stored_chips + (v * ability_table.buff)
+                        t[i] = 0
+                        if i == "chips_mod" then remove[#remove+1] = "message" end
+                    end
+                end
+
+                for _,v in ipairs(remove) do
+                    t[v] = nil
+                end
+            end
+
+            if other_card == card and Stacked.get_card_pos(card) ~= 1 then
+                reduce_mult_and_chips(ret)
+            end
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.joker_main and Stacked.get_card_pos(card) == 1 then
+                local ret = {}
+                if ability_table.stored_mult ~= 0 then
+                    ret = SMODS.merge_effects({ret or {}, {mult = ability_table.stored_mult}})
+                    ability_table.stored_mult = 0
+                end
+                if ability_table.stored_chips ~= 0 then
+                    ret = SMODS.merge_effects({ret or {}, {chips = ability_table.stored_chips}})
+                    ability_table.stored_chips = 0
+                end
+                return ret
+            end
+        end,
+    },
+    joker_buff38 = {
+        key = "joker_buff38", 
+        type = {"passive", "timing", "attack"},
+        ability = {trigger_max = 3, trigger_times = 0, min_possible = 1, max_possible = 10},
+        in_pool = function(card)
+            if G.jokers and G.jokers.cards then
+                for _,v in ipairs(G.jokers.cards) do
+                    if v.ability and v.ability.hsr_extra_effects then
+                        for _,vv in ipairs(v.ability.hsr_extra_effects) do
+                            if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].type and Stacked.t_contains(type(ExtraEffects[vv.key].type) == "table" and ExtraEffects[vv.key].type or {ExtraEffects[vv.key].type}, "attack") then
+                                return true
+                            end
+                        end
+                    end
+                end
+            end
+            return false
+        end,
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.trigger_max}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb38_potency_roll", min = 0, max = 10}
+            ability_table.trigger_max = math.ceil(Stacked.calc_min_max(ability_table))
+        end,
+        update_values = function(card, ability_table)
+            local new = Stacked.calc_min_max(ability_table)
+            ability_table.trigger_max = math.ceil(new)
+        end,
+        modify_calculate = function(card, context, other_card, ability_table, ret, ability_index)
+            local function follow_up(t)
+                local add = false
+                for i,v in pairs(t) do
+                    if type(v) == "table" and i == "extra" then
+                        follow_up(v)
+                    elseif i == "effect_type" and Stacked.t_contains(v, "attack") and (not t.follow_card or t.follow_card ~= card) then
+                        if ability_table.trigger_times < ability_table.trigger_max then
+                            ability_table.trigger_times = ability_table.trigger_times + 1
+                            add = true
+                        end
+                    end
+                end
+
+                if add then
+                    if t.func then
+                        local ref = t.func
+                        t.func = function(...)
+                            SMODS.calculate_effect({message = "Follow-up!"}, card)
+                            local r = card:calculate_joker({cardarea == G.jokers, full_hand = G.play.cards, scoring_hand = context.scoring_hand, scoring_name = context.scoring_name, poker_hands = context.poker_hands, joker_main = true, follow_card = card})
+                            if r then
+                                SMODS.calculate_effect(r, card)
+                            end
+                            local ref = (...)
+                            return ref
+                        end
+                    else
+                        t.func = function(...)
+                            SMODS.calculate_effect({message = "Follow-up!"}, card)
+                            local r = card:calculate_joker({cardarea == G.jokers, full_hand = G.play.cards, scoring_hand = context.scoring_hand, scoring_name = context.scoring_name, poker_hands = context.poker_hands, joker_main = true, follow_card = card})
+                            if r then
+                                SMODS.calculate_effect(r, card)
+                            end
+                        end
+                    end
+                end
+            end
+
+            follow_up(ret)
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.before and context.main_eval then
+                ability_table.trigger_times = 0
+            end
+        end,
+    },
+    joker_buff39 = {
+        key = "joker_buff39", 
+        type = {"passive", "timing"},
+        ability = {trigger_max = 3, trigger_times = 0, min_possible = 1, max_possible = 10, dir1 = "right", dir2 = "left"},
+        in_pool = function(card)
+            return false
+        end,
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {string.lower(localize("joker_buff14_direction_"..ability_table.dir1)), string.lower(localize("joker_buff14_direction_"..ability_table.dir2)),ability_table.trigger_max}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb39_potency_roll", min = 0, max = 10}
+            ability_table.dir1 = pseudorandom_element({"right", "left"}, pseudoseed("jb39_dir"))
+            ability_table.dir2 = ability_table.dir1 == "right" and "left" or "right"
+            ability_table.trigger_max = math.ceil(Stacked.calc_min_max(ability_table))
+        end,
+        update_values = function(card, ability_table)
+            local new = Stacked.calc_min_max(ability_table)
+            ability_table.trigger_max = math.ceil(new)
+        end,
+        modify_calculate = function(card, context, other_card, ability_table, ret, ability_index)
+            local function follow_up(t)
+               local joker = ability_table.dir2 == "right" and G.jokers.cards[Stacked.get_card_pos(card)+1] or G.jokers.cards[Stacked.get_card_pos(card)-1]
+               if joker and t and type(t) == "table" then
+                    ability_table.trigger_times = ability_table.trigger_times + 1
+                    local function dig(t2)
+                        for i,v in pairs(t2) do
+                            if i == "extra" and type(v) == "table" then
+                                dig(v)
+                                return
+                            end
+                        end
+
+                        if not t2.func then
+                            t2.func = function(...)
+                                SMODS.calculate_effect({message = "Dance!"}, joker)
+                                SMODS.calculate_effect(joker:calculate_joker({cardarea == G.jokers, full_hand = G.play.cards, scoring_hand = context.scoring_hand, scoring_name = context.scoring_name, poker_hands = context.poker_hands, joker_main = true, dance_card = card}) or {}, joker)
+                            end
+                        else
+                            local ref = t2.func
+                            t2.func = function(...)
+                                SMODS.calculate_effect({message = "Dance!"}, joker)
+                                SMODS.calculate_effect(joker:calculate_joker({cardarea == G.jokers, full_hand = G.play.cards, scoring_hand = context.scoring_hand, scoring_name = context.scoring_name, poker_hands = context.poker_hands, joker_main = true, dance_card = card}) or {}, joker)
+                                local ret = ref(...)
+                                return ret
+                            end
+                        end
+                        return
+                    end
+
+                    dig(t)
+               end
+            end
+
+            if (ability_table.dir1 == "right" and other_card == G.jokers.cards[Stacked.get_card_pos(card)+1]) or (ability_table.dir1 == "left" and other_card == G.jokers.cards[Stacked.get_card_pos(card)-1]) and (not context.dance_card or context.dance_card ~= card) and ability_table.trigger_times < ability_table.trigger_max then
+                follow_up(ret)
+            end
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.before and context.main_eval then
+                ability_table.trigger_times = 0
+            end
+        end,
+    },
+    joker_buff40 = {
+        key = "joker_buff40", 
+        type = {"passive", "timing"},
+        ability = {trigger_max = 1, min_possible = 1, max_possible = 10},
+        in_pool = function(card)
+            return false
+        end,
+        loc_vars = function(info_queue, card, ability_table)
+            return {vars = {ability_table.trigger_max}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb40_potency_roll", min = 0, max = 10}
+            ability_table.trigger_max = math.ceil(Stacked.calc_min_max(ability_table))
+        end,
+        update_values = function(card, ability_table)
+            local new = Stacked.calc_min_max(ability_table)
+            ability_table.trigger_max = math.ceil(new)
+        end,
+        modify_calculate = function(card, context, other_card, ability_table, ret, ability_index)
+            if context.joker_main and Stacked.get_card_pos(other_card) <= ability_table.trigger_max and (not context.last_push_card or context.last_push_card ~= card) then
+                SMODS.calculate_effect({message = "Last Push!"}, other_card)
+                ret = SMODS.merge_effects({ret or {}, other_card:calculate_joker({cardarea == G.jokers, full_hand = G.play.cards, scoring_hand = context.scoring_hand, scoring_name = context.scoring_name, poker_hands = context.poker_hands, joker_main = true, last_push_card = card}) or {}})
+            end
+        end,
+    },
+    joker_buff41 = {
+        key = "joker_buff41", 
+        type = {"passive"},
+        ability = {buff = 1, min_possible = 1, max_possible = 3, stored_mult = 0, stored_chips = 0},
+        loc_vars = function(info_queue, card, ability_table)
+            local loc_key = nil
+            if ability_table.perfect and ability_table.perfect >= 100 then
+                loc_key = "joker_buff41_2"
+            end
+            return {key = loc_key, vars = {ability_table.buff, ability_table.buff == 1 and string.lower(localize("stck_singular_cards")) or string.lower(localize("stck_plural_cards"))}}
+        end,
+        randomize_values = function(card, ability_table)
+            ability_table.perfect = Stacked.poll_potency{seed = "jb41_potency_roll", min = 0, max = 10}
+            ability_table.buff = math.floor(Stacked.calc_min_max(ability_table))
+        end,
+        update_values = function(card, ability_table)
+            local new = Stacked.calc_min_max(ability_table)
+            ability_table.buff = math.floor(new)
+        end,
+        calculate = function(card, context, ability_table, ability_index)
+            if context.force_scoring_hand then
+                local dupe_hand = {}
+                for _,v in ipairs(G.hand.cards) do
+                    table.insert(dupe_hand, v)
+                end
+
+                local run = 0
+                for _,v in ipairs(dupe_hand) do
+                    G.hand:remove_card(v)
+                    G.play:emplace(v)
+                    run = run + 1
+                    if ability_table.perfect >= 100 then
+                        v.jb41_always_score = true
+                    end
+                    if run >= ability_table.buff then break end
+                end
+
+                local scoring_hand = nil
+                local poker_hands = evaluate_poker_hand(G.play.cards)
+                for _, v in ipairs(G.handlist) do
+                    if next(poker_hands[v]) then
+                        scoring_hand = poker_hands[v][1]
+                        break
+                    end
+                end
+
+                return{
+                    change_scoring_hand = scoring_hand
+                }
+            end
+            if context.modify_scoring_hand and not context.blueprint and ability_table.perfect >= 100 and context.other_card.jb41_always_score then
+                context.other_card.jb41_always_score = nil
+                return {
+                    add_to_hand = true
+                }
+            end
+        end,
+    },
+
     joker_curse1 = {
         key = "joker_curse1", 
         type = {"passive", "cursed"},

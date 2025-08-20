@@ -57,6 +57,18 @@ function Card:apply_extra_effect(effect, bypass_cap)
     end
 end
 
+function Card:apply_random_effect(effect_type, seed, include_all, ignore_in_pool, bypass_cap)
+    if self.ability and self.config and self.config.center and self.config.center.set == "Joker" then
+        local effects = Stacked.pool_effects(effect_type, self, include_all, ignore_in_pool)
+        if #effects > 0 then
+            local random_eff = pseudorandom_element(effects, pseudoseed(seed or "apply_random_effect"))
+            if random_eff then
+                self:apply_extra_effect(random_eff, bypass_cap)
+            end
+        end
+    end
+end
+
 function Stacked.poll_potency(args)
     local args = args or {}
     args.round = args.round or 1

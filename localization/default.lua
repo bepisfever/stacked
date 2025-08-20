@@ -10,6 +10,14 @@ return{
                     "{C:inactive,s:0.65}(Art and Idea credit: factwixard)",
                 },
             },
+            c_stck_distort = {
+                name = "Distort",
+                text = {
+                    "Give {C:attention}selected{} Joker a",
+                    "{C:dark_edition}Timing{} effect",
+                    "{C:inactive}(Must have room)",
+                },
+            },
         },
         Voucher = {
             v_stck_e_slot_upgrade1 = {
@@ -65,6 +73,7 @@ return{
     ExtraEffectTypes = {
         passive = "Passive",
         attack = "Attack",
+        timing = "{C:stck_rainbow}Timing{}",
         potency = "Potency [{V:1}#1#{}%]",
         cursed = "{C:stck_cursed}Cursed",
     },
@@ -363,6 +372,92 @@ return{
                 "Every {C:attention}played card{} counts in scoring",
             },
         },
+        joker_buff34 = {
+            name = "Unexpected Surge",
+            text = {
+                "Joker's {C:attention}end of round{} effects",
+                "trigger on {C:attention}hand played{}",
+            },
+        },
+        joker_buff35 = {
+            name = "Unrestrained Acceleration",
+            text = {
+                "Joker's {C:attention}main{} effects",
+                "trigger once {C:attention}per card in hand{}",
+                "for {C:attention}#1#{} #3#",
+                "{C:inactive}(Uses left: #2#)",
+            },
+        },
+        joker_buff36 = {
+            name = "Wider Reach",
+            text = {
+                "Joker's {C:attention}per scoring card{} effects",
+                "trigger on cards {C:attention}held in hand{}",
+            },
+        },
+        joker_buff37 = {
+            name = "Stored Energy",
+            text = {
+                "If Joker is {C:attention}leftmost{}, give",
+                "{X:stck_m_a_c,C:white}X#1#{} stored {C:mult}+Mult{}/{C:chips}+Chips{},",
+                "and {C:attention}reset{} to {C:attention}0{}. Else, store {C:mult}+Mult{}/{C:chips}+Chips",
+                "given by Joker",
+                Stacked.stylize_str("(Currently stored: {C:mult}+#2#{} Mult, {C:chips}+#3#{} Chips)", {stylize = {s = 0.7, C = "inactive"}}),
+            },
+        },
+        joker_buff38 = {
+            name = "Follow-up Attack",
+            text = {
+                "If an {C:attention}Attack{} effect is {C:attention}triggered{},",
+                "trigger this Joker's {C:attention}main{} effect",
+                "{C:inactive}(Up to #1# times per hand)",
+            },
+        },
+        joker_buff39 = {
+            name = "Moonlight Dance",
+            text = {
+                "When Joker to the {C:attention}#1#{} triggers", --left/right
+                "its {C:attention}main{} effect, trigger Joker",
+                "to the {C:attention}#2#{}'s {C:attention}main{} effect", --right/left
+                "{C:inactive}(Up to #3# times per hand)",
+            },
+        },
+        joker_buff40 = {
+            name = "Last Push",
+            text = {
+                "On {C:attention}last hand{}, retrigger",
+                "{C:attention}main{} effect of {C:attention}#1#{} Jokers",
+                Stacked.stylize_str("({C:attention}Leftmost{} to {C:attention}rightmost{})", {stylize = {s = 0.7, C = "inactive"}}),
+            },
+        },
+        joker_buff41 = {
+            name = "Stretched Hand",
+            text = {
+                "On {C:attention}hand played{}, add {C:attention}#1#{}",
+                "{C:attention}rightmost{} #2# {C:attention}held{} in",
+                "hand to {C:attention}scoring hand{} if possible",
+                "{C:inactive,s:0.7}(?)",
+                "{C:inactive,s:0.7}(Poker hand will not be changed)",
+            },
+        },
+        joker_buff41_2 = {
+            name = "Stretched Hand MAX",
+            text = {
+                "On {C:attention}hand played{}, add {C:attention}#1#{}",
+                "{C:attention}rightmost{} #2# {C:attention}held{} in",
+                "hand to {C:attention}scoring hand{} if possible",
+                Stacked.stylize_str("Added cards will {C:attention}always{} score", {stylize = {s = 0.7, C = "inactive"}}),
+                "{C:inactive,s:0.7}(Poker hand will not be changed)",
+            },
+        },
+
+        uma_joker_buff1 = {
+            name = "Triumphant Pulse",
+            text = {
+                "On {C:attention}last hand{},",
+                "{C:attention}retrigger{} this Joker {C:attention}once{}",
+            },
+        },
 
         joker_curse1 = {
             name = "Instant Gratification",
@@ -442,6 +537,8 @@ return{
             stck_singular_times = "Time",
             stck_plural_rounds = "Rounds",
             stck_singular_rounds = "Round",
+            stck_plural_cards = "Cards",
+            stck_singular_cards = "Card",
             stck_most_left = "leftmost",
             stck_most_right = "rightmost",
         },

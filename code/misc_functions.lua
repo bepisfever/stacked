@@ -6,60 +6,40 @@ function Stacked.round(number, digit_position)
     return math.floor(number / precision) * precision
 end
 
-function Stacked.isxmult(str)
-    if str and type(str) == "string" then
-        local hasX = string.lower(string.sub(str,1,1)) == "x"
-        if hasX then
-            local forming_mult = ""
-            for i = 1,#str do
-                local chr = string.sub(str,i,i)
-                forming_mult = forming_mult..string.lower(chr)
-            end
-            forming_mult = string.gsub(forming_mult,"_","")
-            forming_mult = string.gsub(forming_mult," ","")
-            if string.find(forming_mult, "mult") then
-                return true
-            end
-        end
-    end
-    return false
-end
-
-function Stacked.ismult(str)
-    if str and type(str) == "string" then
-        if string.find(string.lower(str), "mult") and not Stacked.isxmult(str) then
+function Stacked.isxmult(key)
+    if key and type(key) == "string" then
+        local new_str = string.gsub(string.gsub(string.lower(key),"%A","")," ","")
+        if string.sub(new_str,1,1) == "x" and string.find(new_str,"mult") then
             return true
         end
     end
-    return false
 end
 
-function Stacked.isxchips(str)
-    if str and type(str) == "string" then
-        local hasX = string.lower(string.sub(str,1,1)) == "x"
-        if hasX then
-            local forming_mult = ""
-            for i = 1,#str do
-                local chr = string.sub(str,i,i)
-                forming_mult = forming_mult..string.lower(chr)
-            end
-            forming_mult = string.gsub(forming_mult,"_","")
-            forming_mult = string.gsub(forming_mult," ","")
-            if string.find(forming_mult, "chip") then
-                return true
-            end
-        end
-    end
-    return false
-end
-
-function Stacked.ischips(str)
-    if str and type(str) == "string" then
-        if string.find(string.lower(str), "chip") and not Stacked.isxchips(str) then
+function Stacked.ismult(key)
+    if key and type(key) == "string" then
+        local new_str = string.gsub(string.gsub(string.lower(key),"%A","")," ","")
+        if string.sub(new_str,1,4) == "mult" or key == "h_mult" then
             return true
         end
     end
-    return false
+end
+
+function Stacked.isxchips(key)
+    if key and type(key) == "string" then
+        local new_str = string.gsub(string.gsub(string.lower(key),"%A","")," ","")
+        if string.sub(new_str,1,1) == "x" and string.find(new_str,"chip") then
+            return true
+        end
+    end
+end
+
+function Stacked.ischips(key)
+    if key and type(key) == "string" then
+        local new_str = string.gsub(string.gsub(string.lower(key),"%A","")," ","")
+        if string.sub(new_str,1,4) == "chip" or key == "h_chips" then
+            return true
+        end
+    end
 end
 
 function Stacked.is_mult_or_chips(str)
@@ -665,4 +645,10 @@ function Stacked.get_card_pos(card) --Get the position of the card in its area.
         end
     end
     return 0
+end
+
+function Stacked.get_all_jokers_effects()
+    local ret = {}
+    
+    return ret
 end

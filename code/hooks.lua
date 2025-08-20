@@ -318,12 +318,34 @@ local hookTo = Card.calculate_joker
 function Card:calculate_joker(context)
     local o, t = hookTo(self, context)
     local ret = o
+    if context and type(context) == "table" and context.follow_card then
+        ret.follow_card = context.follow_card
+    end
+    if context and type(context) == "table" and context.hsr_change_context then
+        return ret, t
+    end
+
     local function table_count(t)
         local i = 0
         for _,_ in pairs(t) do
             i = i + 1
         end
         return i
+    end
+
+    for _,v in ipairs(G.jokers.cards) do
+        if v.ability and v.ability.hsr_extra_effects then
+            for ii,vv in ipairs(v.ability.hsr_extra_effects) do
+                if vv.key and ExtraEffects[vv.key] and ExtraEffects[vv.key].change_calc_context and type(ExtraEffects[vv.key].change_calc_context) == "function" then
+                    local new_contexts = ExtraEffects[vv.key].change_calc_context(v, context, self, ret, vv.ability, ii)
+                    if new_contexts and type(new_contexts) == "table" and table_count(new_contexts) > 0 and (not self.config.center.avoid_contexts or not Stacked.equal(new_contexts, self.config.center.avoid_contexts)) then
+                        new_contexts.hsr_change_context = true
+                        local o2, t2 = hookTo(self, new_contexts)
+                        ret = SMODS.merge_effects({ret or {}, o2 or {}})
+                    end
+                end
+            end
+        end
     end
     
     if self.ability and self.ability.hsr_extra_effects then
@@ -559,8 +581,12 @@ function Card:generate_UIBox_ability_table(...)
 
         local function create_effect_box(v, i, desc, line, loc_vars)
             ret.multi_box[existing_mb + increase] = ret.multi_box[existing_mb + increase] or {}
-            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].type and Stacked.t_contains((type(ExtraEffects[v.key].type) == "table" and ExtraEffects[v.key].type) or {ExtraEffects[v.key].type}, "cursed") then
-                ret.multi_box[existing_mb + increase]["main_name_colour"] = SMODS.Gradients["stck_cursed"]
+            if v.key and ExtraEffects[v.key] and ExtraEffects[v.key].type then
+                if Stacked.t_contains((type(ExtraEffects[v.key].type) == "table" and ExtraEffects[v.key].type) or {ExtraEffects[v.key].type}, "cursed") then
+                    ret.multi_box[existing_mb + increase]["main_name_colour"] = SMODS.Gradients["stck_cursed"]
+                elseif Stacked.t_contains((type(ExtraEffects[v.key].type) == "table" and ExtraEffects[v.key].type) or {ExtraEffects[v.key].type}, "timing") then
+                    ret.multi_box[existing_mb + increase]["main_name_colour"] = SMODS.Gradients["stck_rainbow"]
+                end
             end 
             local final_line = SMODS.localize_box(line, loc_vars)
             ret.multi_box[existing_mb + increase][#ret.multi_box[existing_mb + increase]+1] = final_line
@@ -575,6 +601,12 @@ function Card:generate_UIBox_ability_table(...)
             if not next(ret.info) then ret.box_colours[i] = G.C.UI.BACKGROUND_WHITE end
             if loc_vars.background_colour then
                 ret.box_colours[existing_mb + increase + 1] = loc_vars.background_colour
+            end
+            if loc_vars.main_name_colour then
+                ret.multi_box[existing_mb + increase]["main_name_colour"] = loc_vars.main_name_colour
+            end
+            if loc_vars.name_background_colour then
+                ret.multi_box[existing_mb + increase]["name_background_colour"] = loc_vars.name_background_colour
             end
 
             return final_line

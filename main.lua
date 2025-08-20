@@ -3,6 +3,15 @@ Stacked = SMODS.current_mod
 Stacked.effect_per_page = 2
 Stacked.stakes_without_curses = {1,2,3}
 
+local hex_ref = HEX
+function HEX(hex)
+    if hex and type(hex) == "string" and string.sub(hex,1,1) == "#" then
+        hex = string.sub(hex,2,#hex)
+    end
+    local ret = hex_ref(hex)
+    return ret
+end
+
 local allFolders = {
     "none", "code"
 } --Detects in order, going from left to right.
@@ -43,14 +52,23 @@ SMODS.Gradient{
     cycle = 7
 }
 
+SMODS.Gradient{
+    key = "rainbow",
+    colours = {HEX("#ff0000"), HEX("#ff7b00"), HEX("#fff700"), HEX("#26ff00"), HEX("#00eeff"), HEX("#000dff"), HEX("#ff00cc")},
+    cycle = 7
+}
+
 local loc_colour_ref = loc_colour
 function loc_colour(_c, _default)
     if not G.ARGS.LOC_COLOURS then
         loc_colour_ref()
     end
 
-    G.ARGS.LOC_COLOURS["stck_cursed"] = SMODS.Gradients["stck_cursed"]
-    G.ARGS.LOC_COLOURS["stck_m_a_c"] = SMODS.Gradients["stck_m_a_c"]
+    for i,v in pairs(SMODS.Gradients) do
+        if string.sub(i,1,5) == "stck_" then
+            G.ARGS.LOC_COLOURS[i] = SMODS.Gradients[i]
+        end
+    end
 
     return loc_colour_ref(_c, _default)
 end
