@@ -129,7 +129,7 @@ return{
         score_suit_xmult = {
             name = "Suit Synergy X",
             text = {
-                "Scored {V:1}#2#{} cards",
+                "Scored {V:1}#2#{} cards", 
                 "give {X:mult,C:white}X#1#{} Mult",
             },
         },
@@ -306,7 +306,7 @@ return{
             text = {
                 "When a {C:attention}Joker{} is {C:attention}sold{},",
                 "increase this Joker's {C:attention}Sell Value{}",
-                "by {X:money,C:white}X#1#{}",
+                "by {C:money}$#1#{}",
             },
         },
         joker_buff25 = {
@@ -434,7 +434,7 @@ return{
             name = "Stretched Hand",
             text = {
                 "On {C:attention}hand played{}, add {C:attention}#1#{}",
-                "{C:attention}rightmost{} #2# {C:attention}held{} in",
+                "{C:attention}leftmost{} #2# {C:attention}held{} in",
                 "hand to {C:attention}scoring hand{} if possible",
                 "{C:inactive,s:0.7}(?)",
                 "{C:inactive,s:0.7}(Poker hand will not be changed)",
@@ -444,7 +444,7 @@ return{
             name = "Stretched Hand MAX",
             text = {
                 "On {C:attention}hand played{}, add {C:attention}#1#{}",
-                "{C:attention}rightmost{} #2# {C:attention}held{} in",
+                "{C:attention}leftmost{} #2# {C:attention}held{} in",
                 "hand to {C:attention}scoring hand{} if possible",
                 Stacked.stylize_str("Added cards will {C:attention}always{} score", {stylize = {s = 0.7, C = "inactive"}}),
                 "{C:inactive,s:0.7}(Poker hand will not be changed)",

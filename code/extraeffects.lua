@@ -43,7 +43,7 @@ ExtraEffects = {
             if context.individual and context.cardarea == G.play then
                 if context.other_card:is_suit(ability_table.suit) then
                     return{
-                        chips = ability_table.chips
+                        chips = ability_table.chips 
                     }
                 end
             end
@@ -767,9 +767,9 @@ ExtraEffects = {
     joker_buff24 = {
         key = "joker_buff24", 
         type = "passive",
-        ability = {buff = 1, min_possible = 1.1, max_possible = 1.5},
+        ability = {buff = 1, min_possible = 1, max_possible = 4},
         loc_vars = function(info_queue, card, ability_table)
-            return {vars = {ability_table.buff}}
+            return {vars = {Stacked.round(ability_table.buff, 1)}}
         end,
         randomize_values = function(card, ability_table)
             ability_table.perfect = Stacked.poll_potency{seed = "jb24_potency_roll", min = 0, max = 5}
@@ -781,7 +781,7 @@ ExtraEffects = {
         end,
         calculate = function(card, context, ability_table, ability_index)
             if context.selling_card and context.card ~= card and context.card.config and context.card.config.center and context.card.config.center.set == "Joker" then
-                card.sell_cost = Stacked.round(card.sell_cost * ability_table.buff,2)
+                card.ability.extra_value = (card.ability.extra_value or 0) + Stacked.round(ability_table.buff,1)
                 SMODS.calculate_effect({message = "Upgraded!"}, card)
             end
         end,

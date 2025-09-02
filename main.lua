@@ -5,8 +5,25 @@ Stacked.stakes_without_curses = {1,2,3}
 
 local hex_ref = HEX
 function HEX(hex)
-    if hex and type(hex) == "string" and string.sub(hex,1,1) == "#" then
-        hex = string.sub(hex,2,#hex)
+    local hex = (hex and type(hex) == "table" and copy_table(hex)) or hex
+    if hex then
+        if type(hex) == "table" then
+            local concat = table.concat(hex,",")
+            local new_hex = {}
+            for rgb in concat:gmatch('%d+') do
+                table.insert(new_hex, ('%02X'):format(tonumber(rgb)))
+            end
+            hex = table.concat(new_hex)
+        elseif type(hex) == "string" and string.find(hex,",") then
+            local new_hex = {}
+            for rgb in hex:gmatch('%d+') do
+                table.insert(new_hex, ('%02X'):format(tonumber(rgb)))
+            end
+            hex = table.concat(new_hex)
+        end
+        if type(hex) == "string" and string.sub(hex,1,1) == "#" then
+            hex = string.sub(hex,2,#hex)
+        end
     end
     local ret = hex_ref(hex)
     return ret

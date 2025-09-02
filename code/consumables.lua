@@ -56,7 +56,7 @@ SMODS.Consumable {
                 end
             end
         end
-        return joker_text
+        return joker_test
     end
 }
 

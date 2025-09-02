@@ -317,7 +317,7 @@ end
 local hookTo = Card.calculate_joker
 function Card:calculate_joker(context)
     local o, t = hookTo(self, context)
-    local ret = o
+    local ret = o or {}
     if context and type(context) == "table" and context.follow_card then
         ret.follow_card = context.follow_card
     end
